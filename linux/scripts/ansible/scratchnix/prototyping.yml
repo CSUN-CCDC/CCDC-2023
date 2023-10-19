@@ -1,0 +1,13 @@
+---
+- name: Run command and save output to variable
+  hosts: localhost
+  gather_facts: yes
+
+  tasks:
+    - name: Run command and save output to variable
+      shell: nix-build --quiet --no-out-link '<nixpkgs>' -A openssh
+      register: command_output
+
+    - name: Print output
+      debug:
+        var: command_output.stdout
