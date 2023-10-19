@@ -1,0 +1,14 @@
+---
+  - name: backup sysctl.conf
+    ansible.builtin.copy:
+      src: /etc/syctl.conf
+      dest: /etc/sysctl.conf.bac
+  - name: backup sysctl.d
+    ansible.builtin.copy:
+      src: /etc/sysctl.d/
+      dest: /etc/systcl.d.bac/
+  - name: place new sysctl.conf
+    ansible.builtin.copy: 
+      src: files/sysctl.conf
+      dest: /etc/sysctl.conf
+

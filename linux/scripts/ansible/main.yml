@@ -1,0 +1,25 @@
+---
+- name: 
+  become: yes  # If you need to run tasks with elevated privileges, such as sudo
+  hosts: all
+  gather_facts: yes
+
+  pre_tasks:
+    - name: gather package facts
+      ansible.builtin.package_facts:
+        manager: auto
+    - name: Print the package facts
+      ansible.builtin.debug:
+        var: ansible_facts.packages
+
+  roles:
+    #- name: logindefs
+    #  tags: logindefs
+    #- name: pwquality     
+    #  tags: pwquality
+    - name: sshd
+      tags: sshd
+      when: "'openssh-server' in ansible_facts.packages"
+    - name: apt
+      tags: apt
+      when: not ansible.builtin.stat(path='/etc/apt.bac').stat.exists

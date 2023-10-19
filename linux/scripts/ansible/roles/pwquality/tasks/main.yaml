@@ -1,0 +1,7 @@
+---
+- name: Create backup of common-password
+  copy: remote_src=False src=/etc/pam.d/common-password dest=/etc/pam.d/common-password.bac
+- name: place template file
+  ansible.builtin.template:
+    dest: /etc/pam.d/common-password
+    src: templates/common-password.j2

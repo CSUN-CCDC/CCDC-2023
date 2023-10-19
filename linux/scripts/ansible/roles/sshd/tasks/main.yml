@@ -1,0 +1,29 @@
+---
+  - name: configure sshd
+    ansible.builtin.lineinfile:
+      dest: /etc/ssh/sshd_config
+      regexp: "^{{ item.parameter }}"
+      line: "{{ item.parameter }} {{ item.value }}"
+      state: present
+      backup: yes
+    with_items: 
+    - parameter: PermitRootLogin
+      value: "no"
+    - parameter: PubkeyAuthentication
+      value: "yes"
+    - parameter: PermitEmptyPasswords
+      value: "no"
+    - parameter: AllowAgentForwarding
+      value: "no"
+    - parameter: X11Forwarding
+      value: "no"
+    - parameter: PasswordAuthentication
+      value: "no"
+  - name: Find files and directories in ssh directory
+    ansible.builtin.find:
+      paths: /etc/ssh
+      recurse: yes
+    register: directory_contents
+  - name: Display all ssh config files
+    ansible.builtin.debug:
+      var: directory_contents

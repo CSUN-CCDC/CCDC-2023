@@ -1,0 +1,29 @@
+---
+- name: backup dnf sources
+  ansible.builtin.copy:
+    src: /etc/dnf/
+    dest: /etc/dnf.bac/
+- name: remove dnf sources
+  ansible.builtin.file:
+    path: /etc/dnf/
+    state: absent
+- name: Put new ansible files in the correct spot
+  ansible.builtin.copy:
+    src: templates/{{ ansible_facts['distribution_release'] }}/
+    dest: /etc/apt/
+- name: Use dnf to update the system
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+- name: install dnf-automatic
+  ansible.builtin.dnf:
+  name: "dnf-automatic"
+  state: latest
+- name: remove old dnf-automatic.conf
+  ansible.builtin.file:
+  /etc/dnf/automatic.conf
+- name: place new automatic.conf
+  ansible.builtin.copy:
+    src: files/automatic.conf
+    dest: /etc/dnf/automatic.conf
+  
