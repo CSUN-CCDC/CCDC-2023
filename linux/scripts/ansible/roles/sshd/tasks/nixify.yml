@@ -1,0 +1,14 @@
+---
+  - name: Run command and save output to variable
+    shell: nix-build --quiet --no-out-link '<nixpkgs>' -A openssh
+    register: nix_path
+
+  - name: Print output
+    debug:
+      var: nix_path.stdout
+
+  - name: Copy a template file
+    template:
+      src: templates/sshd.service.j2
+      dest: /etc/systemd/system/sshd.service
+

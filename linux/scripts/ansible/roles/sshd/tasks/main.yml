@@ -1,4 +1,12 @@
 ---
+  - name: Add SSH Privilege Separation User
+    ansible.builtin.user:
+      name: sshd
+      comment: "sshd privilege separation"
+      system: yes
+      shell: /bin/false
+    when: not ('sshd' in ansible_facts.ansible_users)
+
   - name: configure sshd
     ansible.builtin.lineinfile:
       dest: /etc/ssh/sshd_config
@@ -7,6 +15,8 @@
       state: present
       backup: yes
     with_items: 
+    - parameter: UsePrivilegeSeparation
+      value: "yes"
     - parameter: PermitRootLogin
       value: "no"
     - parameter: PubkeyAuthentication
@@ -19,6 +29,7 @@
       value: "no"
     - parameter: PasswordAuthentication
       value: "no"
+  
   - name: Find files and directories in ssh directory
     ansible.builtin.find:
       paths: /etc/ssh

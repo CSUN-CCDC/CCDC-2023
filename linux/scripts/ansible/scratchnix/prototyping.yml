@@ -6,8 +6,14 @@
   tasks:
     - name: Run command and save output to variable
       shell: nix-build --quiet --no-out-link '<nixpkgs>' -A openssh
-      register: command_output
+      register: nix_path
 
     - name: Print output
       debug:
-        var: command_output.stdout
+        var: nix_path.stdout
+
+    - name: Copy a template file
+      template:
+        src: sshd.service.j2
+        dest: ./sshd.service
+
