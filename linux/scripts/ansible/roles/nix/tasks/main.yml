@@ -6,6 +6,7 @@
   - name: Install Nix
     ansible.builtin.shell: "nix-installer install linux --init none --no-confirm"
     register: nix_install_result
+    ignore_errors: yes
 
   # - name: Install Nix
   #   shell: "curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install linux --init none --no-confirm"
