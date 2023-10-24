@@ -17,5 +17,6 @@ mkShell {
     fsearch
     fd
     (pkgs.python311.withPackages my-python-packages)
+    ansible-lint
   ];
 }
