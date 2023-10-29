@@ -13,8 +13,8 @@ mkShell {
   LC_ALL = "C.UTF-8";
   LANG = "C.UTF-8";
   buildInputs = [
+    nmap
     zellij
-    fsearch
     fd
     (pkgs.python311.withPackages my-python-packages)
     ansible-lint
