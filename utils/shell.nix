@@ -13,6 +13,8 @@ mkShell {
   LC_ALL = "C.UTF-8";
   LANG = "C.UTF-8";
   buildInputs = [
+    genpass
+    openssh
     nmap
     masscan
     zellij
