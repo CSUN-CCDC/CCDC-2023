@@ -193,4 +193,5 @@ get_ram_info
 get_cpu_info
 get_storage_info
 
+echo
 echo "Done! Wrote to $FILE"
