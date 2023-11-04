@@ -188,7 +188,7 @@ get_storage_info() {
 }
 
 # Display information for RAM, CPU, and storage
-echo "===== Hardware (Place as Extra Notes if No Hardware Section on Exel Sheet): ====="
+echo "===== Hardware (Place as Extra Notes if No Hardware Section on Exel Sheet): =====" | tee -a $FILE
 get_ram_info
 get_cpu_info
 get_storage_info
