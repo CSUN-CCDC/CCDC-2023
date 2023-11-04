@@ -14,22 +14,22 @@
       owner: root
       group: root
       mode: '755'
-    when: nix_installed.failed == false
+    when: nix_installed.rc != 0
   
 
   - name: Install Nix
     ansible.builtin.shell: "/bin/nix-installer install linux --init none --no-confirm"
     register: nix_install_result
     ignore_errors: true
-    when: nix_installed.failed == false
+    when: nix_installed.failed != false
 
   # - name: Install Nix
   #   shell: "curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install linux --init none --no-confirm"
   #   register: nix_install_result
   #   ignore_errors: yes  # Allow this command to fail if Nix is already installed
 
-  - name: Add Nixpkgs-unstable channel and update
-    ansible.builtin.shell: "nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs && nix-channel --update"
+  - name: Add nixpkgs-unstable channel and update
+    ansible.builtin.shell: "source /etc/profile && nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs && nix-channel --update"
     args:
       executable: '/bin/bash'
-    when: nix_install_result.failed == false  # Only run if Nix was successfully installed
+    #when: nix_install_result.failed == false  # Only run if Nix was successfully installed

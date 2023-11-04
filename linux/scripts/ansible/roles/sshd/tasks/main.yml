@@ -1,11 +1,11 @@
 ---
-- name: Add SSH Privilege Separation User
-  ansible.builtin.user:
-    name: sshd
-    comment: "sshd privilege separation"
-    system: true
-    shell: /bin/false
-  when: not ('sshd' in ansible_facts.ansible_users)
+# - name: Add SSH Privilege Separation User
+#   ansible.builtin.user:
+#     name: sshd
+#     comment: "sshd privilege separation"
+#     system: true
+#     shell: /bin/false
+#   when: not ('sshd' in ansible_facts.ansible_users)
 
 - name: Configure sshd
   ansible.builtin.lineinfile:
@@ -16,7 +16,7 @@
     backup: true
   with_items:
     - parameter: UsePrivilegeSeparation
-      value: "yes"
+      value: "no"
     - parameter: PermitRootLogin
       value: "yes"
     - parameter: PubkeyAuthentication

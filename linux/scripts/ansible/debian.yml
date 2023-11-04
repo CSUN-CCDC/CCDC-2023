@@ -11,7 +11,9 @@
       tags: pwquality
     - name: nix
     - name: sshd
+      vars:
+        #sshd_only_user = administrator ? # for if we want to deny all other users access to sshd. 
       tags: sshd
-    - name: apt
-      tags: apt
-      when: not ansible.builtin.stat(path='/etc/apt.bac').stat.exists
+    # - name: apt
+    #   tags: apt
+    #   when: not ansible.builtin.stat(path='/etc/apt.bac').stat.exists
