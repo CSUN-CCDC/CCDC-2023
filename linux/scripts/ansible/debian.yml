@@ -1,0 +1,17 @@
+---
+- name:
+  become: true  # If you need to run tasks with elevated privileges, such as sudo
+  hosts: all
+  gather_facts: true
+
+  roles:
+    - name: logindefs
+      tags: logindefs
+    - name: pwquality
+      tags: pwquality
+    - name: nix
+    - name: sshd
+      tags: sshd
+    - name: apt
+      tags: apt
+      when: not ansible.builtin.stat(path='/etc/apt.bac').stat.exists

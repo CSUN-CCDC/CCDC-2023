@@ -1,24 +1,24 @@
 ---
 # Heavily inspired by https://github.com/vmware/dod-compliance-and-automation/blob/e48903594dea777700de5ea9b2e5cc32c67a0636/tkg/2.1.0/ubuntu/20.04/ansible/tasks/common-logindefs.yml
-  - name: configure
+  - name: Configure
     ansible.builtin.lineinfile:
       dest: /etc/login.defs
       regexp: "^{{ item.parameter }}"
       line: "{{ item.parameter }} {{ item.value }}"
       state: present
-      backup: yes
-    with_items: 
-    - parameter: ENCRYPT_METHOD
-      value: "SHA512"
-    - parameter: PASS_MIN_DAYS
-      value: "7"
-    - parameter: PASS_MAX_DAYS
-      value: "10"
-    - parameter: PASS_WARN_AGE
-      value: 7
-    - parameter: UMASK
-      value: "077"
-    - parameter: CREATE_HOME
-      value: "yes"
+      backup: true
+    with_items:
+      - parameter: ENCRYPT_METHOD
+        value: "SHA512"
+      - parameter: PASS_MIN_DAYS
+        value: "7"
+      - parameter: PASS_MAX_DAYS
+        value: "10"
+      - parameter: PASS_WARN_AGE
+        value: 7
+      - parameter: UMASK
+        value: "077"
+      - parameter: CREATE_HOME
+        value: "yes"
 
 

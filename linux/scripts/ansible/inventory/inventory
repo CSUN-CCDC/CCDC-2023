@@ -1,2 +1,8 @@
+[all]
+
 [localhost]
 localhost ansible_connection=local
+
+#[thisisagroup]
+#server1 ansible_ssh_user=your_username ansible_ssh_pass=your_password
+#server2 ansible_ssh_user=your_username ansible_ssh_pass=your_password

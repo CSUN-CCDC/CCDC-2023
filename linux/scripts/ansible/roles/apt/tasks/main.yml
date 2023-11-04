@@ -1,9 +1,13 @@
 ---
-- name: backup apt sources
+- name: Backup apt sources
   ansible.builtin.copy:
     src: /etc/apt/
     dest: /etc/apt.bac/
-- name: remove apt sources
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Remove apt sources
   ansible.builtin.file:
     path: /etc/apt/
     state: absent
@@ -11,8 +15,13 @@
   ansible.builtin.copy:
     src: templates/{{ ansible_facts['distribution_release'] }}/
     dest: /etc/apt/
+    owner: root
+    group: root
+    mode: '0644'
+
+
 - name: Use apt to update the system
   ansible.builtin.apt:
-    update_cache: yes
+    update_cache: true
     name: "*"
     state: latest

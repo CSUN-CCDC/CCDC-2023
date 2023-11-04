@@ -15,15 +15,15 @@
   ansible.builtin.dnf:
     name: "*"
     state: latest
-- name: install dnf-automatic
-  ansible.builtin.dnf:
-  name: "dnf-automatic"
-  state: latest
-- name: remove old dnf-automatic.conf
-  ansible.builtin.file:
-  /etc/dnf/automatic.conf
-- name: place new automatic.conf
-  ansible.builtin.copy:
-    src: files/automatic.conf
-    dest: /etc/dnf/automatic.conf
+# - name: install dnf-automatic
+#   ansible.builtin.dnf:
+#   name: "dnf-automatic"
+#   state: latest
+# - name: remove old dnf-automatic.conf
+#   ansible.builtin.file:
+#   /etc/dnf/automatic.conf
+# - name: place new automatic.conf
+#   ansible.builtin.copy:
+#     src: files/automatic.conf
+#     dest: /etc/dnf/automatic.conf
   
