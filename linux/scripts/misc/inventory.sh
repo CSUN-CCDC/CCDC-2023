@@ -5,6 +5,7 @@ set -e
 FILE="inventory.txt"
 
 # Get OS info
+echo "===== Getting OS Info: ======"
 if [ $(command -v hostnamectl) ]; then
     hostnamectl | tee -a $FILE
 elif [ -r /etc/os-release ]; then
@@ -17,6 +18,8 @@ else
 fi
 
 # Get IP information
+echo ""
+echo "===== Getting IP Information: ====="
 if [ $(command -v ip) ]; then
     ip -brief address | tee -a $FILE
 elif [ $(command -v ifconfig) ]; then
@@ -27,6 +30,8 @@ else
 fi
 
 # Get open ports
+echo ""
+echo "===== Showing Open Ports on System: ====="
 if [ $(command -v ss) ]; then
     ss -lnptu | tee -a $FILE
 elif [ $(command -v netstat) ]; then
@@ -39,6 +44,7 @@ else
 fi
 
 # Get users
+echo "===== Getting Users with shell: ====="
 echo "Users: " | tee -a $FILE
 egrep -v 'nologin$' /etc/passwd | cut -d: -f1 | tee -a $FILE
 
