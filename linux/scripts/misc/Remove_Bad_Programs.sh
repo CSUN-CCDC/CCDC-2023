@@ -1,15 +1,5 @@
 #!/bin/bash
-clear
-echo "Modified and Created by Diego Cruz John H Francis Polytechnigh High, CA, USA."
-#echo "Last Modified on Wednesday, Janurary 8th, 2021"
-echo "This is the Linux/Ubuntu Cyberpatriot Bad Programs Removal Script."
-echo -e "It will delete the following from the system: \nHacking Tools, \nGames, \nMedia Programs, \nand Possible Dangerous Programs.\n"
-echo -e "Enter Any Key To Continue"
-read warning1
-clear
-echo "WARNING: Make sure you have solved your forensic questions!! As Script Modification May Ruin Forensic Question Answers."
-echo -n Are you ready??
-read warning2
+
 if [[ $EUID -ne 0 ]]
 then
   echo This script must be run as root
@@ -29,7 +19,7 @@ apt-get purge socat -y -qq
 apt-get purge sock -y -qq
 apt-get purge socket -y -qq
 apt-get purge sbd -y -qq
-rm /usr/bin/nc
+#rm /usr/bin/nc
 # "Netcat and all other instances have been removed."
 echo -e "Netcat and all other instances have been removed."
 # 2s
