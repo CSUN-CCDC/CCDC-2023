@@ -1,0 +1,15 @@
+---
+
+- name: Print ansible_connection
+  ansible.builtin.debug:
+    msg: "{{ ansible_env['SSH_CLIENT'].split() | first }}"
+
+- name: Set ansible connection variable
+  set_fact:
+    control_node_ip: "{{ ansible_env['SSH_CLIENT'].split() | first }}"
+
+- name: Print ansible connection
+  ansible.builtin.debug:
+    var: control_node_ip
+
+

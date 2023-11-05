@@ -1,8 +1,21 @@
-[all]
+all:
+  hosts:
+    localhost:
+      ansible_connection: local
+    
 
-[localhost]
-localhost ansible_connection=local
+testing:
+  hosts:
+    10.88.0.13:
+      ansible_ssh_user: moon
+      ansible_ssh_pass: yeet
+      ansible_become_password: yeet
 
-#[thisisagroup]
-#server1 ansible_ssh_user=your_username ansible_ssh_pass=your_password
-#server2 ansible_ssh_user=your_username ansible_ssh_pass=your_password
+# thisisagroup:
+#   hosts:
+#     server1:
+#       ansible_ssh_user: your_username
+#       ansible_ssh_pass: your_password
+#     server2:
+#       ansible_ssh_user: your_username
+#       ansible_ssh_pass: your_password

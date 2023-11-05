@@ -12,10 +12,11 @@ with pkgs;
 mkShell {
   LC_ALL = "C.UTF-8";
   LANG = "C.UTF-8";
+  ANSIBLE_HOST_KEY_CHECKING= "False";
   buildInputs = [
-    nmap
-    zellij
-    fd
+    openssh
+    sshpass
+    sshs
     (pkgs.python311.withPackages my-python-packages)
     ansible-lint
   ];

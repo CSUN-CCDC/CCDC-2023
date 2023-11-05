@@ -1,0 +1,9 @@
+---
+
+- name: Lockdown to only control node ip address
+  block: 
+  - name: Print control node ip address
+    ansible.builtin.debug:
+      var: control_node_ip
+  # Follow ufw from here: https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html
+  when: ufw_lockdown == true

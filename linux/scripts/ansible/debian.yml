@@ -1,4 +1,5 @@
 ---
+
 - name:
   become: true  # If you need to run tasks with elevated privileges, such as sudo
   hosts: all
@@ -12,7 +13,7 @@
     - name: nix
     - name: sshd
       vars:
-        #sshd_only_user = administrator ? # for if we want to deny all other users access to sshd. 
+        # sshd_only_user = administrator ? # for if we want to deny all other users access to sshd.
       tags: sshd
     # - name: apt
     #   tags: apt
