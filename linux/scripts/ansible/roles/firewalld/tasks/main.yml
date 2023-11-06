@@ -1,0 +1,17 @@
+---
+
+# Needs python-firewall on the "host that executes the module" Whicch is that?
+
+- name: Lockdown to only control node ip address
+  when: firewalld_lockdown == true
+  become: true
+  block: 
+  - name: Print control node ip address
+    ansible.builtin.debug:
+      var: control_node_ip
+  - name: Only allow control_node_ip
+    ansible.posix.firewalld:
+      source: "{{ control_node_ip }}"
+  - name: Block all other connections
+    # How delete existing rulesets?s
+ 
