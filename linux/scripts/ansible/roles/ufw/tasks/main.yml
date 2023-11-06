@@ -4,21 +4,21 @@
   become: true
   when: ufw_lockdown
   block:
-  - name: Print control node ip address
-    ansible.builtin.debug:
-      var: control_node_ip
-  # Follow ufw from here: https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html
-  - name: Ufw flush existing incoming rulesets
-    community.general.ufw:
-      direction: in
-      delete: true
-  - name: Ufw only allow control node ip address
-    community.general.ufw:
-      rule: allow
-      src: '{{ control_node_ip }}'
-  - name: UFW deny by default
-    community.general.ufw:
-      state: enabled
-      policy: deny
+    - name: Print control node ip address
+      ansible.builtin.debug:
+        var: control_node_ip
+    # Follow ufw from here: https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html
+    - name: Ufw flush existing incoming rulesets
+      community.general.ufw:
+        direction: in
+        delete: true
+    - name: Ufw only allow control node ip address
+      community.general.ufw:
+        rule: allow
+        src: '{{ control_node_ip }}'
+    - name: UFW deny by default
+      community.general.ufw:
+        state: enabled
+        policy: deny
 
 
