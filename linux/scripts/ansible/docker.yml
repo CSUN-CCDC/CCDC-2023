@@ -1,0 +1,11 @@
+---
+
+- name:
+  become: true  # If you need to run tasks with elevated privileges, such as sudo
+  hosts: all
+  gather_facts: true
+
+  roles:
+    - name: docker
+    - vars:
+        docker_containers_to_be_updated: 

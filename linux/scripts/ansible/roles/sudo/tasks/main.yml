@@ -1,0 +1,7 @@
+---
+
+- name: Remove bad sudoers rule for the user
+  ansible.builtin.sudoers:
+    state: absent
+    user: username
+  become: true

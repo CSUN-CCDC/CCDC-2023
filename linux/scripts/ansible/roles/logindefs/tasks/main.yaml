@@ -1,6 +1,7 @@
 ---
 
-# Heavily inspired by https://github.com/vmware/dod-compliance-and-automation/blob/e48903594dea777700de5ea9b2e5cc32c67a0636/tkg/2.1.0/ubuntu/20.04/ansible/tasks/common-logindefs.yml
+# Heavily inspired by 
+# https://github.com/vmware/dod-compliance-and-automation/blob/e48903594dea777700de5ea9b2e5cc32c67a0636/tkg/2.1.0/ubuntu/20.04/ansible/tasks/common-logindefs.yml
 
 - name: Configure
   ansible.builtin.lineinfile:
