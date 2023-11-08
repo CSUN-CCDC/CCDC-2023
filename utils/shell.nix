@@ -14,6 +14,8 @@ mkShell {
   LANG = "C.UTF-8";
   ANSIBLE_HOST_KEY_CHECKING = "False";
   buildInputs = [
+    podman
+    podman-compose
     genpass
     openssh
     sshpass

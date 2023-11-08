@@ -16,6 +16,9 @@ mkShell {
   VAGRANT_WSL_ENABLE_WINDOWS_ACCESS = "1";
   #VAGRANT_DEFAULT_PROVIDER = "virtualbox";
   buildInputs = [
+    podman
+    podman-compose
+    zellij
     vagrant
     openssh
     sshpass
