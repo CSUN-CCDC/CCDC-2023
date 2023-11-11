@@ -5,6 +5,8 @@ let
   my-python-packages = ps: with ps; [
     ansible
     ansible-core
+    molecule
+    molecule-plugins
     # other python packages
   ];
 in
