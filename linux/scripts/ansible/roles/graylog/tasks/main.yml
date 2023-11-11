@@ -1,0 +1,23 @@
+---
+
+- name: Install rsyslog
+  become: true
+  ansible.builtin.package: 
+    name: rsyslog
+    state: present
+
+- name: Forward graylog commands
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/rsyslog.conf
+    line: "*.* @@{{ graylog_ip }}:514"
+
+- name: Forward journalctl to rssylog
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/journactl.conf
+    # regexp: do regex here
+    line: "ForwardToSyslog=yes"
+
+
+

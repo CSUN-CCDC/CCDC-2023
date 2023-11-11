@@ -22,3 +22,17 @@
         policy: deny
 
 
+
+- name: Ufw open ports
+  become: true
+  when: ufw_open_ports is defined
+  block:
+    - name: Open multiple ports in UFW
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        state: enabled
+      with_items: "{{ ufw_open_ports }}"
+  
+
+

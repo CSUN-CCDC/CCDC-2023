@@ -12,3 +12,19 @@
   ansible.builtin.debug:
     var: control_node_ip
 
+
+- name: Is docker installed?
+  ansible.builtin.command: "docker --version"
+  register: docker_installed_command
+  ignore_errors: true
+
+- name: Docker installed fact
+  ansible.builtin.set_fact:
+    docker_installed: "{{ not docker_installed_command.failed }}"
+
+- name: Print if docker is installed
+  ansible.builtin.debug:
+    var: docker_installed
+
+
+

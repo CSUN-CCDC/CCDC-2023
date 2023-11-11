@@ -14,7 +14,7 @@ mkShell {
   LANG = "C.UTF-8";
   ANSIBLE_HOST_KEY_CHECKING = "False";
   VAGRANT_WSL_ENABLE_WINDOWS_ACCESS = "1";
-  #VAGRANT_DEFAULT_PROVIDER = "virtualbox";
+  VAGRANT_DEFAULT_PROVIDER = "libvirt";
   buildInputs = [
     podman
     podman-compose
