@@ -2,6 +2,7 @@
 - name: Run command and save output to variable
   ansible.builtin.shell: nix-build --quiet --no-out-link '<nixpkgs>' -A openssh
   register: nix_path
+  changed when: nix_path.rc != 0
 
 - name: Print output
   ansible.builtin.debug:

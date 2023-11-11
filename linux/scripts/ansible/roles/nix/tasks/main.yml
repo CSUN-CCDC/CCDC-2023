@@ -1,11 +1,11 @@
 ---
 
-  - name: test nix
+  - name: Test nix
     ansible.builtin.shell: nix --version
     args:
       executable: '/bin/bash'
     register: nix_installed
-    ignore_errors: yes
+    ignore_errors: true
 
   - name: Download nix-installer
     ansible.builtin.get_url:
@@ -18,7 +18,7 @@
   
 
   - name: Install Nix
-    ansible.builtin.shell: "/bin/nix-installer install linux --init none --no-confirm"
+    ansible.builtin.command: "/bin/nix-installer install linux --init none --no-confirm"
     register: nix_install_result
     ignore_errors: true
     when: nix_installed.failed != false
@@ -32,4 +32,4 @@
     ansible.builtin.shell: "source /etc/profile && nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs && nix-channel --update"
     args:
       executable: '/bin/bash'
-    #when: nix_install_result.failed == false  # Only run if Nix was successfully installed
+    when: nix_install_result.failed == false  # Only run if Nix was successfully installed

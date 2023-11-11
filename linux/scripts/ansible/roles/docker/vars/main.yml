@@ -1,0 +1,6 @@
+
+
+# Watchtower docker container updater
+
+docker_update_docker_container: # whether or not to update docker containers
+docker_containers_to_be_updated: # By default, watchtower updates all containers. This causes it to only update a few. This is a list

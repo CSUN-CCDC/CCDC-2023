@@ -8,4 +8,5 @@
   roles:
     - name: docker
     - vars:
-        docker_containers_to_be_updated: 
+        update_docker_container: true
+        docker_containers_to_be_updated: [""]

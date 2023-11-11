@@ -1,13 +1,14 @@
 ---
 
 - name: Update some or all docker containers
-  when: update_docker_container is defined
+  become: true
+  when: docker_update_docker_container is defined
   community.docker.docker_container:
     name: watchtower
     image: docker.io/containrrr/watchtower
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-    command: docker_containers_to_be_updated
+    command: "--run-once {{ docker_containers_to_be_updated | join(' ') }}"
 
 
 - name: Debug test
