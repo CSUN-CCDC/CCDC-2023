@@ -9,6 +9,7 @@ let
     molecule-plugins
     # other python packages
   ];
+  vagrantDefaultProvider = if builtins.pathExists /etc/wsl.conf then "virtualbox" else "libvirt";
 in
 with pkgs;
 mkShell {
@@ -16,7 +17,7 @@ mkShell {
   LANG = "C.UTF-8";
   ANSIBLE_HOST_KEY_CHECKING = "False";
   VAGRANT_WSL_ENABLE_WINDOWS_ACCESS = "1";
-  VAGRANT_DEFAULT_PROVIDER = "libvirt";
+  VAGRANT_DEFAULT_PROVIDER = "${vagrantDefaultProvider}";
   buildInputs = [
     podman
     podman-compose
