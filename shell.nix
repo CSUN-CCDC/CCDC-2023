@@ -2,6 +2,7 @@
 { pkgs ? import (fetchTarball https://github.com/NixOS/nixpkgs/archive/nixpkgs-unstable.tar.gz) { } }:
 
 let
+  vagrant = pkgs.callPackage ./env/vagrant/vagrant.nix {};
   my-python-packages = ps: with ps; [
     ansible
     ansible-core
@@ -9,6 +10,7 @@ let
     molecule-plugins
     # other python packages
   ];
+  vagrantPackage = if builtins.pathExists /etc/wsl.conf then "" else "vagrant";
   vagrantDefaultProvider = if builtins.pathExists /etc/wsl.conf then "virtualbox" else "libvirt";
 in
 with pkgs;
@@ -22,7 +24,7 @@ mkShell {
     podman
     podman-compose
     zellij
-    vagrant
+    vagrantPackage
     openssh
     sshpass
     sshs
