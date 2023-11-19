@@ -3,11 +3,6 @@
     ansible.builtin.get_url:
       url: https://github.com/CSUN-CCDC/CCDC-2023/releases/download/wsa/wsa_linux64
       dest: /bin/wsa
-  - name: Install Nix
-    ansible.builtin.shell: "nix-installer install linux --init none --no-confirm"
-    register: nix_install_result
-    ignore_errors: true
-
 
   - name: Scan httpd dirctory
     shell: "/bin/wsa -dir /var/www/html"

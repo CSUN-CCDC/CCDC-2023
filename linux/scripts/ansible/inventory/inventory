@@ -6,7 +6,7 @@ all:
 
 testing:
   hosts:
-    10.88.0.13:
+    192.168.121.94:
       ansible_ssh_user: moon
       ansible_ssh_pass: yeet
       ansible_become_password: yeet

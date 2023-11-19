@@ -1,12 +1,15 @@
 ---
+- name: Print SSH client IP address
+  ansible.builtin.shell: "w -i | awk '{print $3}' | grep '\\.'"
+  register: "wall_command"
 
-- name: Print ansible_connection
+- name: Print ip address from wall
   ansible.builtin.debug:
-    msg: "{{ ansible_env['SSH_CLIENT'].split() | first }}"
+    var: wall_command.stdout
 
 - name: Set ansible connection variable
   ansible.builtin.set_fact:
-    control_node_ip: "{{ ansible_env['SSH_CLIENT'].split() | first }}"
+    control_node_ip: "{{ wall_command.stdout.split('\n')[0] }}"
 
 - name: Print ansible connection
   ansible.builtin.debug:
@@ -16,7 +19,7 @@
 - name: Is docker installed?
   ansible.builtin.command: "docker --version"
   register: docker_installed_command
-  ignore_errors: true
+  ignore_errors: true 
 
 - name: Docker installed fact
   ansible.builtin.set_fact:

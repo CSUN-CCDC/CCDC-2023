@@ -6,12 +6,35 @@
   when: firewalld_lockdown == true
   become: true
   block: 
+    - name: Set firewalld active zone
+      firewalld:
+        zone: public
+        state: enabled
+        immediate: yes
+      notify:
+        - Reload firewalld
+    - name: Block all other connections
+      # How delete existing rulesets?s
+      ansible.posix.firewalld:
+        state: absent 
+        zone: public
     - name: Print control node ip address
       ansible.builtin.debug:
         var: control_node_ip
     - name: Only allow control_node_ip
       ansible.posix.firewalld:
         source: "{{ control_node_ip }}"
-    - name: Block all other connections
-      # How delete existing rulesets?s
+        immediate: yes
+
+- name: Firewalld open ports
+  when: firewalld_open_ports is defined
+  become: true
+  block:
+    - name: Firewalld open ports
+      ansible.posix.firewalld:
+        port: "{{ item }}"
+        state: enabled
+      with_items: "{{ firewalld_open_ports }}"
+    
+
  

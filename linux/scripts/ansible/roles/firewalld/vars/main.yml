@@ -1,0 +1,4 @@
+firewalld_lockdown: # boolean, if enabled will drop all rulesets and only allow ip address of control node to access the machine.  
+
+
+firewalld_open_ports: # List of port/protocol, in THAT EXACT FORMAT, to open. 
