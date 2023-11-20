@@ -6,11 +6,18 @@ with pkgs;
 mkShell {
   allowUnfree = true;
   buildInputs = [
+    shellcheck
     (vscode-with-extensions.override {
             vscodeExtensions = with vscode-extensions; [
             bbenoist.nix
             ms-azuretools.vscode-docker
             ms-vscode-remote.remote-ssh
+            ms-python.python
+            ms-pyright.pyright
+            ms-python.vscode-pylance
+            mads-hartmann.bash-ide-vscode
+            ms-vscode.powershell
+            redhat.vscode-yaml
             ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
                 {
                     name = "quarto";
@@ -18,11 +25,17 @@ mkShell {
                     version = "1.107.0";
                     sha256 = "sha256-wRAB9C1vBgqI/+mhyz4nfvLgHzYKEmAYs1R5Nbdl490=";
                 }
+                # {
+                #     name = "vscode-yaml";
+                #     publisher = "redhat";
+                #     version = "1.14.0";
+                #     sha256 = "sha256-hCRyDA6oZF7hJv0YmbNG3S2XPtNbyxX1j3qL1ixOnF8=";
+                # }
                 {
-                    name = "vscode-yaml";
+                    name = "ansible";
                     publisher = "redhat";
-                    version = "1.14.0";
-                    sha256 = "sha256-hCRyDA6oZF7hJv0YmbNG3S2XPtNbyxX1j3qL1ixOnF8=";
+                    version = "2.8.108";
+                    sha256 = "sha256-67YAcxCsXiocltNhJuuCU1R3itRJYJoXEA7EFXjDx5g=";
                 }
             ];
         })
