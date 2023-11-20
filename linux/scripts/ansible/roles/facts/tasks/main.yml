@@ -1,7 +1,15 @@
 ---
+
+- name: Print SSH client using Dig
+  ansible.builtin.debug:
+    msg: "{{ lookup('community.general.dig', 'test_21') }}"
+
 - name: Print SSH client IP address
   ansible.builtin.shell: "w -i | awk '{print $3}' | grep '\\.'"
-  register: "wall_command"
+  args:
+    executable: /bin/bash
+  register: wall_command
+  changed_when: wall_command.rc != 0
 
 - name: Print ip address from wall
   ansible.builtin.debug:
@@ -19,7 +27,8 @@
 - name: Is docker installed?
   ansible.builtin.command: "docker --version"
   register: docker_installed_command
-  ignore_errors: true 
+  ignore_errors: true
+  changed_when: docker_installed_command.rc != 0
 
 - name: Docker installed fact
   ansible.builtin.set_fact:

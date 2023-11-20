@@ -6,5 +6,6 @@
   gather_facts: true
 
   roles:
-    - name: facts
-  
+    - role: "facts"
+      vars:
+        facts_var1: "test"

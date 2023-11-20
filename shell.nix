@@ -7,6 +7,7 @@ let
     ansible-core
     molecule
     molecule-plugins
+    dnspython
     # other python packages
   ];
   #vagrantPackage = if builtins.pathExists /etc/wsl.conf then "" else "vagrant";
