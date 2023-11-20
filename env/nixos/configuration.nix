@@ -19,13 +19,22 @@ my-python-packages = ps: with ps; [
 
 in
 {
+
+    
     nixpkgs.config.allowUnfree = true;
 
+    #boot.loader.grub.efiInstallAsRemovable = true;
+    # boot.loader.grub = {
+    #     enable = true;
+
+    # };
+
     virtualisation = {
-        virtualbox.host = {
-            enable = true;
-            enableExtensionPack = true;
-        };
+        #useBootLoader = true;
+        #virtualbox.host = {
+        #    enable = true;
+        #    enableExtensionPack = true;
+        #};
         libvirtd.enable = true;
         docker.enable = true;
 
@@ -61,13 +70,13 @@ in
                     name = "quarto";
                     publisher = "quarto";
                     version = "1.107.0";
-                    sha256 = "sha256-VnEqqS/2eQxdvq1DzOylNpb3fo2lmAcBJ8BxDj1JArs=";
+                    sha256 = "sha256-wRAB9C1vBgqI/+mhyz4nfvLgHzYKEmAYs1R5Nbdl490=";
                 }
                 {
-                    name = "YAML";
+                    name = "vscode-yaml";
                     publisher = "redhat";
                     version = "1.14.0";
-                    sha256 = "sha256-vapZKVBoDln12aBTUG9ipW425FXTWBqhjX2mQf+BAZw=";
+                    sha256 = "sha256-hCRyDA6oZF7hJv0YmbNG3S2XPtNbyxX1j3qL1ixOnF8=";
                 }
             ];
         })
@@ -79,12 +88,14 @@ in
     system.stateVersion = lib.version;
 
     #users.mutableUsers = true;
-    extraGroups.vboxusers.members = [ "layer8" ];
+    users.groups.layer8 = {};
+    users.extraGroups.vboxusers.members = [ "layer8" ];
     users.users.root.password = "layer8";
     users.users.layer8 = {
+        isNormalUser = true;
+        group = "layer8";
         createHome = true;
         extraGroups = ["wheel" "docker" "libvirt" "kvm"];
-        initialPassword = "layer8"
-    }
-    services.openssh.settings.PermitRootLogin = lib.mkDefault "yes";
+        initialPassword = "layer8";
+    };
 }
