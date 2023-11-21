@@ -35,33 +35,41 @@ in
         #    enable = true;
         #    enableExtensionPack = true;
         #};
-        libvirtd.enable = true;
-        docker.enable = true;
+        #libvirtd.enable = true;
+        #docker.enable = true;
 
     };
 
 
     services.xserver = {
         enable = true;
-        displayManager.sddm.enable = true;
-        desktopManager.plasma5.enable = true;
+        #displayManager.sddm.enable = true;
+        #desktopManager.plasma5.enable = true;
     };
 
+    # environment.plasma5.excludePackages = with pkgs.libsForQt5; [
+    #     elisa
+    #     gwenview
+    #     okular
+    #     oxygen
+    #     khelpcenter
+    #     print-manager
+    # ];
 
     environment.systemPackages = with pkgs; [
-        nmap
-        masscan
-        vscode-fhs
-        quarto
-        podman
-        podman-compose
-        zellij
-        vagrant
-        openssh
-        sshpass
-        sshs
-        (pkgs.python311.withPackages my-python-packages)
-        sshfs
+    #     nmap
+    #     masscan
+    #     vscode-fhs
+    #     quarto
+    #     podman
+    #     podman-compose
+    #     zellij
+    #     vagrant
+    #     openssh
+    #     sshpass
+    #     sshs
+         (pkgs.python311.withPackages my-python-packages)
+    #     sshfs
         shellcheck
         (vscode-with-extensions.override {
             vscodeExtensions = with vscode-extensions; [
