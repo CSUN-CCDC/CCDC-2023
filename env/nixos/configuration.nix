@@ -16,6 +16,33 @@ my-python-packages = ps: with ps; [
     # other python packages
   ];
 
+vscodeWithExtensions = pkgs.vscode-with-extensions.override {
+    vscode = pkgs.vscode;
+    vscodeExtensions = with pkgs.vscode-extensions; [
+        bbenoist.nix    
+        ms-azuretools.vscode-docker
+        ms-vscode-remote.remote-ssh
+        ms-python.python
+        ms-pyright.pyright
+        ms-python.vscode-pylance
+        mads-hartmann.bash-ide-vscode
+        ms-vscode.powershell
+        redhat.vscode-yaml
+        ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
+            {
+                name = "quarto";
+                publisher = "quarto";
+                version = "1.107.0";
+                sha256 = "sha256-wRAB9C1vBgqI/+mhyz4nfvLgHzYKEmAYs1R5Nbdl490=";
+            }
+            {
+                name = "ansible";
+                publisher = "redhat";
+                version = "2.8.108";
+                sha256 = "sha256-67YAcxCsXiocltNhJuuCU1R3itRJYJoXEA7EFXjDx5g=";
+            }
+        ];
+};
 
 in
 {
@@ -35,68 +62,44 @@ in
         #    enable = true;
         #    enableExtensionPack = true;
         #};
-        #libvirtd.enable = true;
-        #docker.enable = true;
+        libvirtd.enable = true;
+        docker.enable = true;
 
     };
 
 
     services.xserver = {
         enable = true;
-        #displayManager.sddm.enable = true;
-        #desktopManager.plasma5.enable = true;
+        displayManager.sddm.enable = true;
+        desktopManager.plasma5.enable = true;
     };
 
-    # environment.plasma5.excludePackages = with pkgs.libsForQt5; [
-    #     elisa
-    #     gwenview
-    #     okular
-    #     oxygen
-    #     khelpcenter
-    #     print-manager
-    # ];
+    environment.plasma5.excludePackages = with pkgs.libsForQt5; [
+        elisa
+        gwenview
+        okular
+        oxygen
+        khelpcenter
+        konqueror
+    ];
 
     environment.systemPackages = with pkgs; [
+        firefox
     #     nmap
     #     masscan
-    #     vscode-fhs
-    #     quarto
+         quarto
     #     podman
     #     podman-compose
     #     zellij
-    #     vagrant
-    #     openssh
-    #     sshpass
+         vagrant
+         openssh
+         sshpass
     #     sshs
          (pkgs.python311.withPackages my-python-packages)
-    #     sshfs
+         sshfs
         shellcheck
-        (vscode-with-extensions.override {
-            vscodeExtensions = with vscode-extensions; [
-            bbenoist.nix
-            ms-azuretools.vscode-docker
-            ms-vscode-remote.remote-ssh
-            ms-python.python
-            ms-pyright.pyright
-            ms-python.vscode-pylance
-            mads-hartmann.bash-ide-vscode
-            ms-vscode.powershell
-            redhat.vscode-yaml
-            ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
-                {
-                    name = "quarto";
-                    publisher = "quarto";
-                    version = "1.107.0";
-                    sha256 = "sha256-wRAB9C1vBgqI/+mhyz4nfvLgHzYKEmAYs1R5Nbdl490=";
-                }
-                {
-                    name = "ansible";
-                    publisher = "redhat";
-                    version = "2.8.108";
-                    sha256 = "sha256-67YAcxCsXiocltNhJuuCU1R3itRJYJoXEA7EFXjDx5g=";
-                }
-            ];
-        })
+        powershell
+        vscodeWithExtensions
     ];
 
 
