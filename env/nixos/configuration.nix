@@ -65,7 +65,7 @@ in
             enable = true;
             enableExtensionPack = true;
         };
-        virtd.enable = true;
+        libvirtd.enable = true;
         docker.enable = true;
         vmware.host = {
             enable = true;
