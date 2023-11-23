@@ -118,8 +118,6 @@ in
         #allowedTCPPorts = [ 80 443 ];
     };
 
-    system.stateVersion = lib.version;
-
     #users.mutableUsers = true;
     users.groups.layer8 = {};
     #users.extraGroups.vboxusers.members = [ "layer8" ];
