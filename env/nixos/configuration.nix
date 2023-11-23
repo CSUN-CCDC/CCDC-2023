@@ -44,12 +44,15 @@ vscodeWithExtensions = pkgs.vscode-with-extensions.override {
         ];
 };
 
+staticrypt = (pkgs.callPackage ./staticrypt/nodejs-default.nix {}).nodeDependencies; # this gives us the staticrypt npm package
+
 in
 {
 
     
     nixpkgs.config.allowUnfree = true;
 
+    boot.kernelParams = [ "transparent_hugepage=never" ];
     #boot.loader.grub.efiInstallAsRemovable = true;
     # boot.loader.grub = {
     #     enable = true;
@@ -64,7 +67,9 @@ in
         };
         libvirtd.enable = true;
         docker.enable = true;
-
+        vmware.host = {
+            enable = true;
+        };
     };
 
 
@@ -84,38 +89,46 @@ in
     ];
 
     environment.systemPackages = with pkgs; [
+        gh
+        staticrypt
         firefox
-    #     nmap
-    #     masscan
-         quarto
-    #     podman
-    #     podman-compose
-    #     zellij
-         vagrant
-         openssh
-         sshpass
-    #     sshs
-         (pkgs.python311.withPackages my-python-packages)
-         sshfs
+        quarto
+        podman
+        podman-compose
+        zellij
+        vagrant
+        openssh
+        sshpass
+        sshs
+        (pkgs.python311.withPackages my-python-packages)
+        sshfs
         shellcheck
         powershell
         vscodeWithExtensions
+        texlive.combined.scheme-full
+        nmap
+        masscan
+        virt-manager
+        remmina
     ];
 
 
-    networking.firewall.allowedTCPPorts = [80];
+    networking.firewall = {
+        enable = false;
+        #allowedTCPPorts = [ 80 443 ];
+    };
 
     system.stateVersion = lib.version;
 
     #users.mutableUsers = true;
     users.groups.layer8 = {};
-    users.extraGroups.vboxusers.members = [ "layer8" ];
+    #users.extraGroups.vboxusers.members = [ "layer8" ];
     users.users.root.password = "layer8";
     users.users.layer8 = {
         isNormalUser = true;
         group = "layer8";
         createHome = true;
-        extraGroups = ["wheel" "docker" "libvirt" "kvm"];
+        extraGroups = ["wheel" "docker" "libvirt" "kvm" "vboxusers"];
         initialPassword = "layer8";
     };
 }
