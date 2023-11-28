@@ -23,7 +23,7 @@ mkShell {
   buildInputs = [
     podman
     podman-compose
-    zellij
+    #zellij
     vagrant
     openssh
     sshpass
