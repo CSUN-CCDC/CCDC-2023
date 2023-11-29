@@ -36,8 +36,6 @@
     regexp: '^AllowUsers'
     line: 'AllowUsers {{ only_ssh_user }}'
   when: only_ssh_user is defined
-  notify:
-    - restart ssh
 
 - name: Nixify sshd
   ansible.builtin.include_tasks: tasks/nixify.yml
