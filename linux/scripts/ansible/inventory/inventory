@@ -20,3 +20,18 @@ testing:
 #     server2:
 #       ansible_ssh_user: your_username
 #       ansible_ssh_pass: your_password
+
+# Variable usage
+
+# example_ssh_password: "something"
+# comp:
+#   hosts:
+#     <ip-here>:
+#     ansible_ssh_user: user
+#     ansible_ssh_pass: "{{ example_ssh_password }}"
+#     ansible_become_pass: "{{ example_ssh_password }}"
+#   vars: # Alternatively, you can declare them in the "vars" block, which applies to all hosts
+#     ansible_ssh_user: 
+#     ansible_ssh_pass: 
+#     ansible_become: pass
+#   

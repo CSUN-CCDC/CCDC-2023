@@ -23,5 +23,4 @@
 - name: Use apt to update the system
   ansible.builtin.apt:
     update_cache: true
-    name: "*"
-    state: latest
+    upgrade: safe # or do I want to use full, which upgrades everything to the latest versions?

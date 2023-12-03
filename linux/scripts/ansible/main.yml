@@ -1,11 +1,11 @@
 ---
-- name: 
-  become: yes  # If you need to run tasks with elevated privileges, such as sudo
+- name: Old playbook
+  become: true  # If you need to run tasks with elevated privileges, such as sudo
   hosts: all
-  gather_facts: yes
+  gather_facts: true
 
   pre_tasks:
-    - name: gather package facts
+    - name: Gather package facts
       ansible.builtin.package_facts:
         manager: auto
     - name: Print the package facts
@@ -13,9 +13,9 @@
         var: ansible_facts.packages
 
   roles:
-     #- name: logindefs
+    # - name: logindefs
     #  tags: logindefs
-    #- name: pwquality
+    # - name: pwquality
     #  tags: pwquality
     - name: sshd
       tags: sshd
@@ -23,4 +23,3 @@
     - name: apt
       tags: apt
       when: not ansible.builtin.stat(path='/etc/apt.bac').stat.exists
-      

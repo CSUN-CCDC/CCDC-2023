@@ -1,23 +1,12 @@
 ---
 
-- name: Print SSH client using Dig
+- name: Print ansible_connection
   ansible.builtin.debug:
-    msg: "{{ lookup('community.general.dig', 'test_21') }}"
-
-- name: Print SSH client IP address
-  ansible.builtin.shell: "w -i | awk '{print $3}' | grep '\\.'"
-  args:
-    executable: /bin/bash
-  register: wall_command
-  changed_when: wall_command.rc != 0
-
-- name: Print ip address from wall
-  ansible.builtin.debug:
-    var: wall_command.stdout
+    msg: "{{ ansible_env['SSH_CLIENT'].split() | first }}"
 
 - name: Set ansible connection variable
   ansible.builtin.set_fact:
-    control_node_ip: "{{ wall_command.stdout.split('\n')[0] }}"
+    control_node_ip: "{{ ansible_env['SSH_CLIENT'].split() | first }}"
 
 - name: Print ansible connection
   ansible.builtin.debug:

@@ -1,0 +1,38 @@
+---
+- name: Check if backup directories exists already
+  ansible.builtin.stat:
+    path: "{{ playbook_dir }}/backups"
+  register: backups_dir_created
+  #ignore_errors: true # Do I need this option?
+
+- name: Create backups dir
+  when: backups_dir_created.stat.exists
+  hosts: localhost
+  block:
+    - name: Create directory
+      ansible.builtin.file:
+        path: "{{ playbook_dir }}/backups"
+        state: directory
+    - name: Create gitignore file
+      ansible.builtin.copy:
+        content: "*"
+        dest: "./.gitignore"
+        mode: '0644'
+
+- name: Archive and fetch directories
+  when: backup_directories is defined
+  block:
+    - name: Create archive of declared directories
+      become: true
+      when: backup_directories is defined
+      community.general.archive:
+        path: "{{ item }}"
+        dest: "/{{ item | replace('/', '_') }}.tar.gz"
+        mode: '0644'
+      loop: "{{ backup_directories }}"
+
+    - name: Fetch backed up directories
+      become: true # This shouldn't need become, but just in case
+      ansible.builtin.fetch:
+        src: "/{{ item | replace('/', '_') }}.tar.gz"
+        dest: "{{ playbook_dir }}/backups/"
