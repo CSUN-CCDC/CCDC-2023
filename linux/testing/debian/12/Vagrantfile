@@ -9,7 +9,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "libvirt" do |libvirt|
     libvirt.vm.box = "debian/bookworm64"
-    libvirt.vm.provider :lb do |lb|
+    libvirt.vm.provider :libvirt do |lb|
       lb.memory = 1024
       lb.cpus = 1
       lb.video_type = "virtio"

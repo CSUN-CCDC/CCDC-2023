@@ -1,18 +1,28 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# All Vagrant configuration is done below. The "2" in Vagrant.configure
-# configures the configuration version (we support older styles for
-# backwards compatibility). Please don't change it unless you know what
-# you're doing.
 Vagrant.configure("2") do |config|
-  # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "valengus/windows10-22h2-x64"
-  config.vm.provider :libvirt do |libvirt|
-    # Libvirt specific configuration
-    libvirt.driver = "kvm"  # Use KVM as the hypervisor
-    libvirt.memory = 6  # Set the VM memory size in megabytes
-    libvirt.cpus = 2  # Set the number of virtual CPUs
-    libvirt.video_type = "virtio"
+
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+  #config.vm.provision "shell", path: "provision.sh"
+
+
+  config.vm.define "libvirt" do |libvirt|
+    libvirt.vm.box = "valengus/windows10-22h2-x64"
+    libivrt.vm.provider = :libvirt do |lb|
+      lb.driver = "kvm"
+      lb.memory = 6
+      lb.cpus = 2
+      lb.video_type = "virtio"
+    end
   end
+  # config.vm.box = "valengus/windows10-22h2-x64"
+  # config.vm.provider :libvirt do |libvirt|
+  #   # Libvirt specific configuration
+  #   libvirt.driver = "kvm"  # Use KVM as the hypervisor
+  #   libvirt.memory = 6  # Set the VM memory size in megabytes
+  #   libvirt.cpus = 2  # Set the number of virtual CPUs
+  #   libvirt.video_type = "virtio"
+  # end
 end
+
