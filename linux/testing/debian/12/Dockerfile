@@ -6,7 +6,7 @@ RUN apt-get update -y && apt-get install sudo systemd whois iproute2 python-is-p
 
 RUN adduser moon && usermod -aG sudo moon
 
-RUN echo 'moon:yeet' | chpasswd
+RUN echo 'csun:yeet' | chpasswd
 
 RUN echo 'root:yeet' | chpasswd
 

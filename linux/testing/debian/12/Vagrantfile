@@ -1,26 +1,23 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-
 Vagrant.configure("2") do |config|
 
   config.vm.synced_folder ".", "/vagrant", disabled: true
-  config.vm.provision "shell", path: "provision.sh"
+  #config.vm.provision "shell", path: "provision.sh"
 
-  config.vm.define "libvirt" do |libvirt|
-    libvirt.vm.box = "debian/bookworm64"
-    libvirt.vm.provider :libvirt do |lb|
-      lb.memory = 1024
-      lb.cpus = 1
-      lb.video_type = "virtio"
+  config.vm.define "12" do |vmconfig|
+    vmconfig.vm.box = "debian/bookworm64"
+    vmconfig.vm.provider "libvirt" do |libvirt|
+      libvirt.driver = "kvm"
+      libvirt.memory = 6
+      libvirt.cpus = 2
+      libvirt.video_type = "virtio"
     end
-  end
-  config.vm.define "vmware" do |vmware|
-    vmware.vm.box = "generic/debian12"
-    vmware.vm.provider :vmware_desktop do |v|
-      v.vmx["memsize"] = "1024"
-      v.vmx["numvcpus"] = "1" 
+    vmconfig.vm.provider "vmware_desktop" do |vmware, override|
+      override.vm.box = "generic/debian12"
+      vmware.vmx["memsize"] = "1024"
+      vmware.vmx["numvcpus"] = "1"
     end
   end
 end
-
