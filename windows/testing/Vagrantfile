@@ -1,0 +1,37 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+    config.vm.synced_folder ".", "/vagrant", disabled: true
+
+    config.vm.define "10" do |vmconfig|
+        vmconfig.vm.box = "valengus/windows10-22h2-x64"
+        vmconfig.vm.provider "libvirt" do |libvirt|
+            libvirt.driver = "kvm"
+            libvirt.memory = 6000
+            libvirt.cpus = 2
+            libvirt.video_type = "virtio"
+            #libvirt.graphics_type = "vnc"
+        end
+        vmconfig.vm.provider "vmware_desktop" do |vmware, override|
+            override.vm.box = "valengus/windows10-22h2-x64"
+            vmware.vmx["memsize"] = "1024"
+            vmware.vmx["numvcpus"] = "1"
+        end
+    end
+
+    # RHEL and clones removed support for spice graphics, which are much more performant have and have support for a shared clipboard. This vmconfig is designed for them.
+    config.vm.define "10_nospice" do |vmconfig|
+        vmconfig.vm.box = "valengus/windows10-22h2-x64"
+        vmconfig.vm.provider "libvirt" do |libvirt|
+            libvirt.driver = "kvm"
+            libvirt.memory = 6000
+            libvirt.cpus = 2
+            libvirt.video_type = "virtio"
+            libvirt.graphics_type = "vnc"
+            # This disables the guest agent, which seems to need spice?
+            libvirt.channel :type => 'unix', :target_name => 'org.qemu.guest_agent.0', :disabled => true
+        end
+    end
+end
