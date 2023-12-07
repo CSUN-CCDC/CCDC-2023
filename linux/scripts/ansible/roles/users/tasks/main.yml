@@ -1,0 +1,22 @@
+---
+
+
+# TODO: Only have it generate passwords for users that already have a password, right now it generates for every users
+- name: Shuffle passwd user passwords
+  become: true
+  when: users_passwords_shuffle
+  block:
+    - name: Get human users
+      command: getent passwd
+      register: passwd_output
+
+    - name: Parse human users
+      set_fact:
+        # Get this to do only human users with something like (after map) ->  | select('regex_search', '^(?!#)[^:]*:[^:]*:[^:]*:[^:]*:.*(/bin/|/bash|/sh)$') 
+        # Removed the above because it errorer
+        human_users: "{{ passwd_output.stdout_lines | map('split', ':') | map(attribute=0) | list }}"
+
+    - name: Loop through users, change passwords
+      ansible.builtin.include_tasks:
+        file: tasks/change_passwords.yml
+      loop: "{{ human_users }}"

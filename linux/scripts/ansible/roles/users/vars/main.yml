@@ -1,0 +1,3 @@
+users_passwords_shuffle: false # boolean, if defined, will shuffle all passwords and download a CSV of the changes
+
+users_passwords_hash: 'sha512' # String, sets the password hashing algorithm to be used. Currently unused.  

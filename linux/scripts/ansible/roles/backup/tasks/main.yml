@@ -3,20 +3,21 @@
   ansible.builtin.stat:
     path: "{{ playbook_dir }}/backups"
   register: backups_dir_created
-  #ignore_errors: true # Do I need this option?
+  # ignore_errors: true # Do I need this option?
 
-- name: Create backups dir
+- name: Create backups dir on localhost
   when: backups_dir_created.stat.exists
-  hosts: localhost
+  delegate_to: 127.0.0.1
   block:
     - name: Create directory
       ansible.builtin.file:
         path: "{{ playbook_dir }}/backups"
         state: directory
+        mode: '0751'
     - name: Create gitignore file
-      ansible.builtin.copy:
-        content: "*"
-        dest: "./.gitignore"
+      ansible.builtin.template:
+        template: templates/gitignore.j2
+        dest: "{{ playbook_dir }}/backups/.gitignore"
         mode: '0644'
 
 - name: Archive and fetch directories
@@ -36,3 +37,4 @@
       ansible.builtin.fetch:
         src: "/{{ item | replace('/', '_') }}.tar.gz"
         dest: "{{ playbook_dir }}/backups/"
+      loop: "{{ backup_directories }}"

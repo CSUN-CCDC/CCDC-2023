@@ -16,7 +16,7 @@
         line: "PasswordAuthentication yes"
         state: present
         backup: true
-    - name: Restart apache
+    - name: Restart sshd
       ansible.builtin.service:
         name: sshd
         state: restarted

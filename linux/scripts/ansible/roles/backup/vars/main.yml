@@ -1,0 +1,3 @@
+# List, literary comma seperated, python style list, of directories to backup in quotes. E.g: ["/var/www/html", "/etc"].
+# Do not include the trailing backslash
+backup_directories: 

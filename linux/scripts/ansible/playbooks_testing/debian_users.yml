@@ -1,0 +1,12 @@
+---
+- name: Playbook aimed at debian, to test shuffling the users role
+  hosts: all
+
+  roles:
+    - role: "../roles/backup"
+      vars:
+        backup_directories: ["/etc/cron.d", "/etc/ssh/"]
+    # - role: "../roles/users"
+    #   vars:
+    #     users_passwords_shuffle: true
+
