@@ -12,6 +12,8 @@ Vagrant.configure("2") do |config|
             libvirt.memory = 6000
             libvirt.cpus = 2
             libvirt.video_type = "virtio"
+            libvirt.cpu_mode = "host-passthrough"
+            libvirt.nested = "true"
             #libvirt.graphics_type = "vnc"
         end
         vmconfig.vm.provider "vmware_desktop" do |vmware|
