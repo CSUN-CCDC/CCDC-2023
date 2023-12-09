@@ -22,7 +22,7 @@ Vagrant.configure("2") do |config|
         vmconfig.vm.provider "virtualbox" do |virtualbox,override|
             virtualbox.memory = 1024
             virtualbox.cpus = 1
-            override.vm.network "private_network", ip: "192.168.56.4"
+            #override.vm.network "private_network", ip: "192.168.56.4"
         end
         vmconfig.vm.provider "vmware_desktop" do |vmware, override|
             override.vm.box = "generic/debian12"
