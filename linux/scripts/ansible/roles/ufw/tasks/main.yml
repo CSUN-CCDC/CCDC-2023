@@ -10,8 +10,9 @@
     # Follow ufw from here: https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html
     - name: Ufw flush existing incoming rulesets
       community.general.ufw:
-        direction: in
+        direction: incoming
         delete: true
+        default: deny
     - name: Ufw only allow control node ip address
       community.general.ufw:
         rule: allow
@@ -28,11 +29,9 @@
   when: ufw_open_ports is defined
   block:
     - name: Open multiple ports in UFW
-      ufw:
+      commmunity.general.ufw:
         rule: allow
         port: "{{ item }}"
         state: enabled
       with_items: "{{ ufw_open_ports }}"
-  
-
 

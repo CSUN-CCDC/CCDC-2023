@@ -1,0 +1,9 @@
+---
+- name: Playbook for testing firewall related roles
+  hosts: all
+
+  roles:
+    - role: "../roles/facts"
+    - role: "../roles/ufw"
+      vars:
+        ufw_lockdown: true
