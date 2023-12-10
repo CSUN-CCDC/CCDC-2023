@@ -28,8 +28,6 @@
         state: enabled
         policy: deny
 
-
-
 - name: Ufw open ports
   become: true
   when: ufw_open_ports is iterable # By default, open_ports is an empty list. Iterable checks if it's actually empty

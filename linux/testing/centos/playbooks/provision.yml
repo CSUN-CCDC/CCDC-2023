@@ -1,0 +1,22 @@
+---
+- name: Provision Ubuntu vm
+  become: true  # If you need to run tasks with elevated privileges, such as sudo
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    # - name: Set vagrant user password
+    #   ansible.builtin.user:
+    #     name: "vagrant"
+    #     password: "{{ 'vagrant' | password_hash('sha512') }}"  # Replace 'new_password' with the desired password # TODO: random passwords or passphrases
+    # - name: Configure sshd to accept passwords
+    #   ansible.builtin.lineinfile:
+    #     dest: /etc/ssh/sshd_config
+    #     regexp: '^PasswordAuthentication '
+    #     line: "PasswordAuthentication yes"
+    #     state: present
+    #     backup: true
+    # - name: Restart sshd
+    #   ansible.builtin.service:
+    #     name: sshd
+    #     state: restarted

@@ -26,6 +26,3 @@
 - name: Print if docker is installed
   ansible.builtin.debug:
     var: docker_installed
-
-
-
