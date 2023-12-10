@@ -8,15 +8,21 @@
       ansible.builtin.debug:
         var: control_node_ip
     # Follow ufw from here: https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html
-    - name: Ufw flush existing incoming rulesets
+    - name: Reset UFW
       community.general.ufw:
-        direction: incoming
-        delete: true
+        state: reset
+    - name: Ufw allow outgoing
+      community.general.ufw:
+        default: allow
+        direction: outgoing
+    - name: Disallow incoming
+      community.general.ufw:
         default: deny
+        direction: incoming
     - name: Ufw only allow control node ip address
       community.general.ufw:
         rule: allow
-        src: '{{ control_node_ip }}'
+        from_ip: '{{ control_node_ip }}'
     - name: UFW deny by default
       community.general.ufw:
         state: enabled
@@ -26,10 +32,10 @@
 
 - name: Ufw open ports
   become: true
-  when: ufw_open_ports is defined
+  when: ufw_open_ports is iterable # By default, open_ports is an empty list. Iterable checks if it's actually empty
   block:
     - name: Open multiple ports in UFW
-      commmunity.general.ufw:
+      community.general.ufw:
         rule: allow
         port: "{{ item }}"
         state: enabled

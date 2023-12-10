@@ -6,11 +6,12 @@ Vagrant.configure("2") do |config|
     config.vm.synced_folder ".", "/vagrant", disabled: true
     #config.vm.provision "shell", path: "provision.sh"
 
-    config.vm.define "focal" do |vmconfig|
-        vmconfig.vm.provision "ansible" do |ansible|
-            ansible.playbook = "playbooks/provision.yml"
-        end
-        vmconfig.vm.box = "generic/ubuntu2004"
+    config.vm.define "bookworm" do |vmconfig|
+        #vmconfig.vm.provision "shell", path: "provision.sh"
+        # vmconfig.vm.provision "ansible" do |ansible|
+        #     ansible.playbook = "playbooks/provision.yml"
+        # end
+        vmconfig.vm.box = "fedora/39-cloud-base"
         vmconfig.vm.provider "libvirt" do |libvirt|
             libvirt.driver = "kvm"
             libvirt.memory = 1024
@@ -22,10 +23,6 @@ Vagrant.configure("2") do |config|
             virtualbox.memory = 1024
             virtualbox.cpus = 1
             #override.vm.network "private_network", ip: "192.168.56.4"
-        end
-        vmconfig.vm.provider "vmware_desktop" do |vmware, override|
-            vmware.vmx["memsize"] = "1024"
-            vmware.vmx["numvcpus"] = "1"
         end
         
         # vmconfig.vm.network "private_network", type: "dhcp"#, hostname: true

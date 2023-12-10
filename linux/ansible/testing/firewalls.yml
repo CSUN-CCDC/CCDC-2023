@@ -7,3 +7,6 @@
     - role: "../roles/ufw"
       vars:
         ufw_lockdown: true
+    - role: "../roles/ufw"
+      vars:
+        ufw_open_ports: [80,443]
