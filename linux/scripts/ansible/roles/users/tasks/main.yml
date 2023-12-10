@@ -7,16 +7,29 @@
   when: users_passwords_shuffle
   block:
     - name: Get human users
-      command: getent passwd
-      register: passwd_output
+      ansible.builtin.getent:
+        database: passwd
+      register: passwd
 
-    - name: Parse human users
-      set_fact:
-        # Get this to do only human users with something like (after map) ->  | select('regex_search', '^(?!#)[^:]*:[^:]*:[^:]*:[^:]*:.*(/bin/|/bash|/sh)$') 
-        # Removed the above because it errorer
-        human_users: "{{ passwd_output.stdout_lines | map('split', ':') | map(attribute=0) | list }}"
+    # Parse this to only do human users or something because this sucks. 
+
+    - name: Create scoring engine CSV
+      ansible.builtin.file:
+        dest: "/tmp/passwordlist.csv"
+        mode: '0644'
+        state: touch
 
     - name: Loop through users, change passwords
       ansible.builtin.include_tasks:
         file: tasks/change_passwords.yml
-      loop: "{{ human_users }}"
+      loop: "{{ passwd.ansible_facts.getent_passwd | dict2items | map(attribute='key') | list }}"
+
+    - name: Fetch passwordlist
+      ansible.builtin.fetch:
+        src: "/tmp/passwordlist.csv"
+        dest: "{{ playbook_dir }}/passwords/"
+    
+    - name: Delete passwordlist
+      ansible.builtin.file:
+        path: "/tmp/passwordlist.csv"
+        state: absent

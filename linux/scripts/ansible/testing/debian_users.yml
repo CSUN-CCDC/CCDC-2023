@@ -6,7 +6,7 @@
     - role: "../roles/backup"
       vars:
         backup_directories: ["/etc/cron.d", "/etc/ssh/"]
-    # - role: "../roles/users"
-    #   vars:
-    #     users_passwords_shuffle: true
+    - role: "../roles/users"
+      vars:
+        users_passwords_shuffle: true
 
