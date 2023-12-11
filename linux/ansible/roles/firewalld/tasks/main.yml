@@ -7,34 +7,38 @@
   become: true
   block: 
     - name: Set firewalld active zone
-      firewalld:
+      ansible.posix.firewalld:
         zone: public
         state: enabled
-        immediate: yes
-      notify:
-        - Reload firewalld
+        immediate: true
+        permanent: true
     - name: Block all other connections
-      # How delete existing rulesets?s
+      # How delete existing rulesets? This might do it?
       ansible.posix.firewalld:
-        state: absent 
+        state: absent
         zone: public
+        target: default
+        permanent: true
     - name: Print control node ip address
       ansible.builtin.debug:
         var: control_node_ip
     - name: Only allow control_node_ip
       ansible.posix.firewalld:
         source: "{{ control_node_ip }}"
-        immediate: yes
+        permanent: true
+        immediate: true
+        state: enabled
+    - name: Reload firewalld service
+      ansible.builtin.service:
+        name: firewalld
+        state: restarted
 
 - name: Firewalld open ports
-  when: firewalld_open_ports is defined
+  when: firewalld_open_ports is iterable # Since firewalld_open_ports is a list, this checks if this list is non-empty
   become: true
   block:
     - name: Firewalld open ports
       ansible.posix.firewalld:
         port: "{{ item }}"
         state: enabled
-      with_items: "{{ firewalld_open_ports }}"
-    
-
- 
+      loop: "{{ firewalld_open_ports }}"
