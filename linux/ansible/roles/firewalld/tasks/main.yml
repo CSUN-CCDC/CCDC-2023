@@ -3,21 +3,14 @@
 # Needs python-firewall on the "host that executes the module" Whicch is that?
 
 - name: Lockdown to only control node ip address
-  when: firewalld_lockdown == true
+  when: firewalld_lockdown
   become: true
-  block: 
+  block:
     - name: Set firewalld active zone
       ansible.posix.firewalld:
         zone: public
         state: enabled
         immediate: true
-        permanent: true
-    - name: Block all other connections
-      # How delete existing rulesets? This might do it?
-      ansible.posix.firewalld:
-        state: absent
-        zone: public
-        target: default
         permanent: true
     - name: Print control node ip address
       ansible.builtin.debug:
@@ -26,8 +19,28 @@
       ansible.posix.firewalld:
         source: "{{ control_node_ip }}"
         permanent: true
-        immediate: true
         state: enabled
+    - name: Get firewalld services
+      ansible.builtin.command: firewall-cmd --list-services
+      register: firewalld_enabled_services
+    - name: Delete all existing firewalld services
+      ansible.posix.firewalld:
+        zone: public
+        service: "{{ item }}"
+        state: disabled
+        permanent: true
+      loop: "{{ firewalld_enabled_services.stdout.split(' ') | reject('search', 'dhcpv6-client') | list }}"
+    - name: Get firewall-cmd open ports
+      ansible.builtin.command: firewall-cmd --list-ports
+      register: firewalld_ports
+    - name: Delete existing firewalld ports
+      when: firewalld_ports.stdout is defined and firewalld_ports.stdout | length > 0
+      ansible.posix.firewalld:
+        zone: public
+        port: "{{ item }}"
+        state: disabled
+        permanent: true
+      loop: "{{ firewalld_ports.stdout.split(' ') }}"
     - name: Reload firewalld service
       ansible.builtin.service:
         name: firewalld
@@ -41,4 +54,26 @@
       ansible.posix.firewalld:
         port: "{{ item }}"
         state: enabled
+        permanent: true
       loop: "{{ firewalld_open_ports }}"
+    - name: Reload firewalld service
+      ansible.builtin.service:
+        name: firewalld
+        state: restarted
+
+- name: Enable firewalld services
+  when: firewalld_services is iterable
+  become: true
+  block:
+    - name: Firewalld open services
+      ansible.posix.firewalld:
+        service: "{{ item }}"
+        state: enabled
+        permanent: true
+      loop: "{{ firewalld_services }}"
+    - name: Restart firewalld
+      ansible.builtin.service:
+        name: firewalld
+        state: restarted
+ 
+

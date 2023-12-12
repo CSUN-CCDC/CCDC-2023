@@ -1,4 +1,8 @@
-firewalld_lockdown: false # boolean, if enabled will drop all rulesets and only allow ip address of control node to access the machine.  
+firewalld_lockdown: false # boolean, if enabled will drop all rulesets and only allow ip address of control node to access the machine.
 
 
-firewalld_open_ports: [] # List of port/protocol, in THAT EXACT FORMAT, to open. 
+firewalld_open_ports: [] # List of port/protocol, in THAT EXACT FORMAT, to open. E.g: ['8081/tcp','72/udp']
+
+# List of services to enable via firewalld.
+# See: https://wiki.archlinux.org/title/Firewalld#Services for definitions
+firewalld_services: [] 
