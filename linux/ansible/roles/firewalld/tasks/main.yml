@@ -18,6 +18,7 @@
     - name: Only allow control_node_ip
       ansible.posix.firewalld:
         source: "{{ control_node_ip }}"
+        zone: trusted
         permanent: true
         state: enabled
     - name: Get firewalld services

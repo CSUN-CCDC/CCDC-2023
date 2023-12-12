@@ -1,3 +1,0 @@
-linux_users_passwords_shuffle: # boolean, if defined, will shuffle all passwords and download a CSV of the changes
-
-linux_users_passwords_hash: 'sha512' # String, sets the password hashing algorithm to be used. Currently unused.  

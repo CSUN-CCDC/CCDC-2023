@@ -8,6 +8,25 @@
 - name: Archive and fetch directories
   when: backup_directories is defined
   block:
+    # Gitignore part can probably be merged into a single task
+    # Also a when statement, for when it's not needed.
+    - name: Create .gitignore file
+      become: true
+      ansible.builtin.template:
+        src: templates/gitignore.j2
+        dest: /tmp/gitignore
+        mode: '0644'
+    - name: Fetch gitignore
+      ansible.builtin.fetch:
+        src: /tmp/gitignore
+        dest: "{{ playbook_dir }}/backups/.gitignore"
+        flat: yes
+    - name: Delete gitignore
+      become: true
+      ansible.builtin.file:
+        path: /tmp/gitignore
+        state: absent
+
     - name: Create archive of declared directories
       become: true
       when: backup_directories is defined
@@ -21,7 +40,8 @@
       become: true # This shouldn't need become, but just in case
       ansible.builtin.fetch:
         src: "/{{ item | replace('/', '_') }}.tar.gz"
-        dest: "{{ playbook_dir }}/backups/"
+        dest: "{{ playbook_dir }}/backups/{{ ansible_facts['nodename'] }}/"
+        flat: yes
       loop: "{{ backup_directories }}"
 
     - name: Delete backup on system
