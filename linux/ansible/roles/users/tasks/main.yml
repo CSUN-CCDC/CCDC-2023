@@ -1,4 +1,9 @@
 ---
+- name: Get human users
+  become: true
+  ansible.builtin.getent:
+    database: passwd
+  register: passwd
 
 
 # TODO: Only have it generate passwords for users that already have a password, right now it generates for every users
@@ -18,18 +23,12 @@
       ansible.builtin.fetch:
         src: /tmp/gitignore
         dest: "{{ playbook_dir }}/passwords/.gitignore"
-        flat: yes
+        flat: true
     - name: Delete gitignore file from server
       become: true
       ansible.builtin.file:
         path: /tmp/gitignore
         state: absent
-  
-    - name: Get human users
-      ansible.builtin.getent:
-        database: passwd
-      register: passwd
-
     # Parse this to only do human users or something because this sucks.
 
     - name: Create random location for passwords csv
@@ -45,14 +44,25 @@
       ansible.builtin.include_tasks:
         file: tasks/change_passwords.yml
       loop: "{{ passwd.ansible_facts.getent_passwd | dict2items | map(attribute='key') | list }}"
-
     - name: Fetch passwordlist
       ansible.builtin.fetch:
         src: "/tmp/{{ passwordlistfile }}"
         dest: "{{ playbook_dir }}/passwords/{{ ansible_facts['nodename'] }}/passwordlist.csv"
-        flat: yes
-
+        flat: true
     - name: Delete passwordlist
       ansible.builtin.file:
         path: "/tmp/{{ passwordlistfile }}"
         state: absent
+
+- name: Control who is admin
+  when: users_admins is iterable # Checks if list is non-empty
+  become: true
+  block:
+    - name: Delete everybody from admin groups
+      ansible.builtin.include_tasks:
+        file: tasks/remove_admins.yml
+      loop: "{{ passwd.ansible_facts.getent_passwd | dict2items | map(attribute='key') | list }}"
+    - name: Add users to admin groups
+      ansible.builtin.include_tasks:
+        file: tasks/add_admins.yml
+      loop: "{{ users_admins }}"

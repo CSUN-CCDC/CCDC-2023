@@ -1,0 +1,13 @@
+- name: Add {{ item }} to admin groups
+  ignore_errors: true
+  ansible.builtin.user:
+    name: "{{ item }}"
+    groups: "{{ groupname }}"
+    append: true
+  loop:
+    - adm
+    - docker
+    - wheel
+    - sudo
+  loop_control:
+    loop_var: groupname

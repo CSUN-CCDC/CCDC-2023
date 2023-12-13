@@ -1,0 +1,14 @@
+---
+- name: Remove user {{ item }} from admin groups
+  ansible.builtin.command: gpasswd -d {{ item }} {{ groupname }}
+  ignore_errors: true
+  loop:
+    - sudo
+    - wheel
+    - docker
+  loop_control:
+    loop_var: groupname
+  # Async didn't work for this, it wasn't any faster than non-async operation
+  # async: 1000
+  # poll: 0
+

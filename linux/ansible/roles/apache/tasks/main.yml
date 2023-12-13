@@ -1,5 +1,5 @@
 ---
-  - name: Download webshell-analyzer
+  - name: Download webshell-analyzers
     ansible.builtin.get_url:
       url: https://github.com/CSUN-CCDC/CCDC-2023/releases/download/wsa/wsa_linux64
       dest: /bin/wsa
