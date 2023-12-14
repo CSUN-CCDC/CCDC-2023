@@ -5,4 +5,4 @@ firewalld_open_ports: [] # List of port/protocol, in THAT EXACT FORMAT, to open.
 
 # List of services to enable via firewalld.
 # See: https://wiki.archlinux.org/title/Firewalld#Services for definitions
-firewalld_services: [] 
+firewalld_services: []

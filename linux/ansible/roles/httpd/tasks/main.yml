@@ -1,0 +1,17 @@
+---
+
+- name: Scan directories using webshell analyzer
+  when: httpd_scan_directories is iterable # Checks if list is non empty
+  become: true
+  block:
+    - name: Download webshell-analyzers
+      ansible.builtin.get_url:
+        url: https://github.com/CSUN-CCDC/CCDC-2023/releases/download/wsa/wsa_linux64
+        dest: /bin/webshell-analyzer
+        mode: '0751'
+    - name: Run webshell analyzer on selected directories
+      ansible.builtin.command: /bin/webshell-analyzer -dir {{ item }}
+      loop: "{{ httpd_scan_directories }}"
+
+# Now how to parse the json that webshell analyzer outputs?
+

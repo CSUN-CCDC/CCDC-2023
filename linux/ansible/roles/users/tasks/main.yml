@@ -5,6 +5,11 @@
     database: passwd
   register: passwd
 
+- name: Get groups
+  become: true
+  ansible.builtin.getent:
+    database: group
+
 
 # TODO: Only have it generate passwords for users that already have a password, right now it generates for every users
 - name: Shuffle passwd user passwords
@@ -54,6 +59,9 @@
         path: "/tmp/{{ passwordlistfile }}"
         state: absent
 
+
+
+
 - name: Control who is admin
   when: users_admins is iterable # Checks if list is non-empty
   become: true
@@ -66,3 +74,15 @@
       ansible.builtin.include_tasks:
         file: tasks/add_admins.yml
       loop: "{{ users_admins }}"
+
+- name: Control who is admin version 2
+  when: false
+  become: true
+  block:
+    - name: Get which users are part of admin groups
+      ansible.builtin.set_fact:
+        "{{ item }}": "{{ ansible_facts.getent_group.item[2].split(',') | list }}"
+      loop: ["sudo","wheel","docker"]
+    - name: List users in the groups
+      ansible.builtin.debug:
+        msg: "{{ sudo }}"

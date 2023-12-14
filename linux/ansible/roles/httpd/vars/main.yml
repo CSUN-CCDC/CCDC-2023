@@ -1,0 +1,5 @@
+# List of directories to scan using webshell analyser
+# Scanner used: https://github.com/tstillz/webshell-analyzer
+# Default httpd directory is something, can't remember
+httpd_scan_directories: []
+

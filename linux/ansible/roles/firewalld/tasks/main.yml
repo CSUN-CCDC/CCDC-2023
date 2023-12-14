@@ -24,6 +24,7 @@
     - name: Get firewalld services
       ansible.builtin.command: firewall-cmd --list-services
       register: firewalld_enabled_services
+      changed_when: false
     - name: Delete all existing firewalld services
       ansible.posix.firewalld:
         zone: public
@@ -34,6 +35,7 @@
     - name: Get firewall-cmd open ports
       ansible.builtin.command: firewall-cmd --list-ports
       register: firewalld_ports
+      changed_when: false
     - name: Delete existing firewalld ports
       when: firewalld_ports.stdout is defined and firewalld_ports.stdout | length > 0
       ansible.posix.firewalld:
@@ -76,5 +78,4 @@
       ansible.builtin.service:
         name: firewalld
         state: restarted
- 
 

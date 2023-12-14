@@ -1,0 +1,9 @@
+---
+- name: Playbook for testing webserver related roles
+  hosts: all
+
+  roles:
+    - role: "../roles/facts"
+    - role: "../roles/httpd"
+      vars:
+        httpd_scan_directories: ["/var/www/html"]
