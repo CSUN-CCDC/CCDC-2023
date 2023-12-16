@@ -23,7 +23,6 @@ mkShell {
     sshs
     nmap
     masscan
-    zellij
     (pkgs.python311.withPackages my-python-packages)
   ];
 }
