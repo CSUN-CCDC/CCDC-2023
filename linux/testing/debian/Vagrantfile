@@ -29,7 +29,14 @@ Vagrant.configure("2") do |config|
             vmware.vmx["memsize"] = "1024"
             vmware.vmx["numvcpus"] = "1"
         end
-        
+
+        vmconfig.vm.provider "qemu" do |qemu, override|
+            override.vm.box = "generic/debian12"
+            qemu.machine = "virt,accel=tcg,highmem=off"
+            qemu.memory = "1G"
+            cpu = "EPYC-IBPB"
+            arch = "x86_64"
+        end
         # vmconfig.vm.network "private_network", type: "dhcp"#, hostname: true
         # vmconfig.vm.hostname = "bookworm.local"
         #vmconfig.vm.network "public_network", ip: "10.20.20.1", hostname: true

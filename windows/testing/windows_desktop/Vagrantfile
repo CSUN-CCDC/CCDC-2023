@@ -52,6 +52,4 @@ Vagrant.configure("2") do |config|
             vmware.vmx["numvcpus"] = "1"
         end
     end
-
-    
 end
