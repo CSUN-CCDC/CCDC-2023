@@ -98,7 +98,10 @@
       ansible.builtin.include_tasks:
         file: tasks/admins.yml
       loop: "{{ existing_admin_users | difference(users_admins2) }}"
+    - name: Get real admins
+      ansible.builtin.set_fact:
+        existing_admin_groups: 
     - name: Ensure admins are admins
       ansible.builtin.include_tasks:
         file: tasks/add_admins2.yml
-      loop: "{{  }}"
+      loop: "{{ users_admins2 }}"
