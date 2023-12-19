@@ -1,2 +1,12 @@
 ---
--
+- name: Get groups {{ item }} is in
+  ansible.builtin.command: "su -c 'groups' -s /bin/bash {{ item }}"
+  register: user_groups
+- name: Print current groups
+  ansible.builtin.debug:
+    msg: "{{ user_groups.stdout }}"
+- name: Add user to admin groups
+  ansible.builtin.user:
+    name: "{{ item }}"
+    append: true
+    groups: "{{ user_groups.stdout.split(' ') | union(existing_admin_groups) | list }}"

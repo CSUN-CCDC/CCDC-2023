@@ -85,22 +85,29 @@
         docker_users: "{{ ansible_facts.getent_group.docker[2].split(',') if 'docker' in ansible_facts.getent_group else [] }}"
         wheel_users: "{{ ansible_facts.getent_group.wheel[2].split(',') if 'wheel' in ansible_facts.getent_group else [] }}"
         admin_groups: ["sudo", "docker", "wheel"]
-    - name: Concatenate admin groups
+    - name: Concatenate admin groups, get real admin groups
       ansible.builtin.set_fact:
-        existing_admin_users: "{{ sudo_users | union(docker_users) | union(wheel_users) | list }}"
+        existing_admin_users: "{{ sudo_users | union(docker_users) | union(wheel_users) | reject('equalto', '') | list }}"
+        existing_admin_groups_string: "{{ 'sudo ' if 'sudo' in ansible_facts.getent_group else '' }}{{ 'docker ' if 'docker' in ansible_facts.getent_group else '' }}{{ 'wheel' if 'wheel' in ansible_facts.getent_group else '' }}"
+    - name: Print existing_admin_groups_string
+      ansible.builtin.debug:
+        var: existing_admin_groups_string
     - name: List existing admin users
       ansible.builtin.debug:
         var: existing_admin_users
     - name: Print only who is supposed to be an admin user
       ansible.builtin.debug:
         msg: "{{ existing_admin_users | difference(users_admins2) }}"
-    - name: Loop through admins, remove irrelevant one's from admin groups
+    - name: Loop through admins, remove incorrect one's from admin groups
       ansible.builtin.include_tasks:
         file: tasks/admins.yml
       loop: "{{ existing_admin_users | difference(users_admins2) }}"
-    - name: Get real admins
+    - name: Get existing admin groups as a list
       ansible.builtin.set_fact:
-        existing_admin_groups: 
+        existing_admin_groups: "{{ existing_admin_groups_string.split(' ') | list }}"
+    - name: Print existing admin groups
+      ansible.builtin.debug:
+        var: existing_admin_groups
     - name: Ensure admins are admins
       ansible.builtin.include_tasks:
         file: tasks/add_admins2.yml

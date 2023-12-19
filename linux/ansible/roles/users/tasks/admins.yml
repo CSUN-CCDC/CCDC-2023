@@ -14,7 +14,7 @@
     - name: Print correct groups
       ansible.builtin.debug:
         msg: "{{ user_groups.stdout.split(' ') | difference(admin_groups) }}"
-    - name: Ansible remove user from admin groups
+    - name: Remove user from admin groups
       ansible.builtin.user:
         name: "{{ item }}"
         groups: "{{ user_groups.stdout.split(' ') | difference(admin_groups) }}"
