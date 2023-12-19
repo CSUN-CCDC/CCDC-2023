@@ -1,7 +1,7 @@
 ---
 
 - name: Scan directories using webshell analyzer
-  when: httpd_scan_directories is iterable # Checks if list is non empty
+  when: httpd_scan_directories | length > 0 # Checks if list is non empty
   become: true
   block:
     - name: Download webshell-analyzers

@@ -30,7 +30,7 @@
 
 - name: Ufw open ports
   become: true
-  when: ufw_open_ports is iterable # By default, open_ports is an empty list. Iterable checks if it's actually empty
+  when: ufw_open_ports | length > 0 # By default, open_ports is an empty list. Iterable checks if it's actually empty
   block:
     - name: Open multiple ports in UFW
       community.general.ufw:

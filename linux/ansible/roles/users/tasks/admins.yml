@@ -1,13 +1,21 @@
 ---
-- name: Get which users are part of admin groups
-  ansible.builtin.set_fact:
-    sudo: "{{ ansible_facts.getent_group.sudo[2].split(',') | list }}"
-- name: Get which users are part of admin groups
-  ansible.builtin.set_fact:
-    docker: "{{ ansible_facts.getent_group.docker[2].split(',') | list }}"
-- name: Get which users are part of admin groups
-  ansible.builtin.set_fact:
-    wheel: "{{ ansible_facts.getent_group.wheel[2].split(',') | list }}"
-- name: List users in the groups
-  ansible.builtin.debug:
-    msg: "{{ sudo }}"
+- name: Configure user {{ item }}
+  block:
+    - name: Get groups user is in
+      ansible.builtin.command: "su -c 'groups' -s /bin/bash {{ item }}"
+      register: user_groups
+      changed_when: false
+    - name: Print current groups
+      ansible.builtin.debug:
+        msg: "{{ user_groups.stdout }}"
+    - name: Print current groups of {{ item }}
+      ansible.builtin.debug:
+        msg: "{{ user_groups.stdout.split(' ') }}"
+    - name: Print correct groups
+      ansible.builtin.debug:
+        msg: "{{ user_groups.stdout.split(' ') | difference(admin_groups) }}"
+    - name: Ansible remove user from admin groups
+      ansible.builtin.user:
+        name: "{{ item }}"
+        groups: "{{ user_groups.stdout.split(' ') | difference(admin_groups) }}"
+        append: false

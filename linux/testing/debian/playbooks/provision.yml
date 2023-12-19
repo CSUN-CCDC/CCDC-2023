@@ -5,18 +5,23 @@
   gather_facts: true
 
   tasks:
-    - name: Set vagrant user password
+    - name: Install docker
+      ansible.builtin.apt:
+        update_cache: true
+        name: docker.io
+    - name: Add vagrant user to sudo
       ansible.builtin.user:
-        name: "vagrant"
-        password: "{{ 'vagrant' | password_hash('sha512') }}"  # Replace 'new_password' with the desired password # TODO: random passwords or passphrases
-    - name: Configure sshd to accept passwords
-      ansible.builtin.lineinfile:
-        dest: /etc/ssh/sshd_config
-        regexp: '^PasswordAuthentication '
-        line: "PasswordAuthentication yes"
+        name: vagrant
+        append: true
+        groups: sudo  # Add the user to the sudo group
+    - name: Create Wheel group
+      ansible.builtin.group:
+        name: wheel
         state: present
-        backup: true
-    - name: Restart sshd
-      ansible.builtin.service:
-        name: sshd
-        state: restarted
+    - name: Create Example User
+      ansible.builtin.user:
+        name: example_user
+        comment: "Example User"
+        groups: ["wheel", "sudo", "docker", "adm"] # Add the user to the wheel group
+        createhome: true
+        shell: /bin/bash

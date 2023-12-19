@@ -2,4 +2,6 @@ users_passwords_shuffle: false # boolean, if defined, will shuffle all passwords
 
 users_admins: [] # List of strings, of which users should be part of the docker/sudo/wheel groups. Primitive and slow, but working. Requires gpasswd.
 
+users_admins2: [] # Version 2 of the admins role, will replace the old role, declared above. Requires the "groups" command. 
+
 users_passwords_hash: 'sha512' # String, sets the password hashing algorithm to be used. Some older OS may not be compatible with a newer hasing algorithm.s

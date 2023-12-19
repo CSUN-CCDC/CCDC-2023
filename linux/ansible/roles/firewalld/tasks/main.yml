@@ -50,7 +50,7 @@
         state: restarted
 
 - name: Firewalld open ports
-  when: firewalld_open_ports is iterable # Since firewalld_open_ports is a list, this checks if this list is non-empty
+  when: firewalld_open_ports | length > 0 # Since firewalld_open_ports is a list, this checks if this list is non-empty
   become: true
   block:
     - name: Firewalld open ports
@@ -65,7 +65,7 @@
         state: restarted
 
 - name: Enable firewalld services
-  when: firewalld_services is iterable
+  when: firewalld_services | length > 0
   become: true
   block:
     - name: Firewalld open services
