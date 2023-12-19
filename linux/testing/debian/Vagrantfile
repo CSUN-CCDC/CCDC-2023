@@ -34,8 +34,12 @@ Vagrant.configure("2") do |config|
             override.vm.box = "generic/debian12"
             qemu.machine = "virt,accel=tcg,highmem=off"
             qemu.memory = "1G"
-            cpu = "EPYC-IBPB"
-            arch = "x86_64"
+            qemu.cpu = "qemu64"
+            qemu.smp = "1" # Simulated CPU's
+            qemu.arch = "x86_64"
+            qemu.qemu_dir = "/usr/share/qemu"
+            qemu.machine = "q35"
+            qemu.net_device = "socket"
         end
         # vmconfig.vm.network "private_network", type: "dhcp"#, hostname: true
         # vmconfig.vm.hostname = "bookworm.local"
