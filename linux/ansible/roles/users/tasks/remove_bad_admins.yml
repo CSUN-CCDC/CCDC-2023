@@ -1,7 +1,7 @@
 ---
 - name: Configure user {{ item }}
   block:
-    - name: Get groups user is in
+    - name: Get groups of user {{ item }}
       ansible.builtin.command: "su -c 'groups' -s /bin/bash {{ item }}"
       register: user_groups
       changed_when: false

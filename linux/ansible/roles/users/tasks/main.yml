@@ -59,24 +59,8 @@
         path: "/tmp/{{ passwordlistfile }}"
         state: absent
 
-
-
-
-- name: Control who is admin
-  when: users_admins | length > 0 # Checks if list is non-empty
-  become: true
-  block:
-    - name: Delete everybody from admin groups
-      ansible.builtin.include_tasks:
-        file: tasks/remove_admins.yml
-      loop: "{{ passwd.ansible_facts.getent_passwd | dict2items | map(attribute='key') | list }}"
-    - name: Add users to admin groups
-      ansible.builtin.include_tasks:
-        file: tasks/add_admins.yml
-      loop: "{{ users_admins }}"
-
 - name: Control who is admin version 2
-  when: users_admins2 | length > 0 # Checks if list is non-empty
+  when: users_admins | length > 0 # Checks if list is non-empty
   become: true
   block:
     - name: Get which users are part of admin groups
@@ -97,18 +81,18 @@
         var: existing_admin_users
     - name: Print only who is supposed to be an admin user
       ansible.builtin.debug:
-        msg: "{{ existing_admin_users | difference(users_admins2) }}"
+        msg: "{{ existing_admin_users | difference(users_admins) }}"
     - name: Loop through admins, remove incorrect one's from admin groups
       ansible.builtin.include_tasks:
-        file: tasks/admins.yml
-      loop: "{{ existing_admin_users | difference(users_admins2) }}"
+        file: tasks/remove_bad_admins.yml
+      loop: "{{ existing_admin_users | difference(users_admins) }}"
     - name: Get existing admin groups as a list
       ansible.builtin.set_fact:
         existing_admin_groups: "{{ existing_admin_groups_string.split(' ') | list }}"
     - name: Print existing admin groups
       ansible.builtin.debug:
         var: existing_admin_groups
-    - name: Ensure admins are admins
+    - name: Add declared admins to correct groups
       ansible.builtin.include_tasks:
-        file: tasks/add_admins2.yml
-      loop: "{{ users_admins2 }}"
+        file: tasks/add_good_admins.yml
+      loop: "{{ users_admins }}"

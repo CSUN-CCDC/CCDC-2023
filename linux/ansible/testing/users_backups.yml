@@ -7,5 +7,5 @@
     #     backup_directories: ["/etc/systemd"]
     - role: "../roles/users"
       vars:
-        users_admins2: ["vagrant", "root"]
+        users_admins: ["vagrant", "root"]
 
