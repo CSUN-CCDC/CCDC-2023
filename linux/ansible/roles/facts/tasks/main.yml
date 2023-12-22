@@ -28,15 +28,22 @@
 - name: Ansible set facts
   ansible.builtin.set_fact:
     hostname: "{{ ansible_facts['nodename'] }}"
-    operating_system: "{{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
+    distro: "{{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
+    operating_system: "{{ ansible_facts['system'] }}"
     service_manager: "{{ ansible_facts['service_mgr'] }}"
+    cpus: "{{ ansible_processor_count }} of {{ ansible_processor }}"
     memory_total: "{{ ansible_facts['memtotal_mb'] }}"
-    #memory_free: "{{ ansible_facts['memory_mb']['nocache']['free'] }}" # Does not exist on dragonflybsd. 
+    # Below is free memory, not including cached stuff
+    # TODO: Figure out how to get equivalent of linux  available memory on bsd type systems.
+    memory_free: "{{ ansible_memfree_mb }}"
 
 - name: Print relevant facts from ansible facts
   ansible.builtin.debug:
     msg:
       - "hostname: {{ hostname }}"
+      - "distro: {{ distro }}"
       - "operating_system: {{ operating_system }}"
       - "service_manager: {{ service_manager }}"
       - "memory_total (megabytes): {{ memory_total }}"
+      - "memory_free (megabytes): {{ memory_free }}"
+      - "cpus: {{ cpus }}"

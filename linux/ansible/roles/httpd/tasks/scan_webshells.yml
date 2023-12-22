@@ -1,0 +1,11 @@
+---
+- name: Run webshell analyzer on selected directories
+  ansible.builtin.command: "/bin/webshell-analyzer -dir {{ item }} -pretty"
+  changed_when: false
+  register: webshell_command
+- name: Convert commmand output to json
+  ansible.builtin.set_fact:
+    webshell_command_json: "{{ webshell_command.stdout | from_json }}"
+- name: Append output to list
+  ansible.builtin.set_fact:
+    webshell_scan_results: "{{ webshell_scan_results + [webshell_command_json] }}"
