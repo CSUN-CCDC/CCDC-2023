@@ -1,0 +1,14 @@
+---
+- name: Playbook aimed at debian, to test shuffling the users role
+  hosts: all
+  gather_facts: true
+
+  tasks:
+  - name: Print all ansible facts
+    ansible.builtin.debug:
+        var: ansible_facts
+
+
+
+  roles: 
+    - role: "../roles/facts"

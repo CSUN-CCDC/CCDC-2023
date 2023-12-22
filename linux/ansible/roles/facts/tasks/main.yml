@@ -1,8 +1,6 @@
 ---
-
-- name: Print ansible_connection
-  ansible.builtin.debug:
-    msg: "{{ ansible_env['SSH_CLIENT'].split() | first }}"
+# - name: Gather facts
+#   ansible.builtin.setup:
 
 - name: Set ansible connection variable
   ansible.builtin.set_fact:
@@ -17,7 +15,7 @@
   ansible.builtin.command: "docker --version"
   register: docker_installed_command
   ignore_errors: true
-  changed_when: docker_installed_command.rc != 0
+  changed_when: false
 
 - name: Docker installed fact
   ansible.builtin.set_fact:
@@ -26,3 +24,19 @@
 - name: Print if docker is installed
   ansible.builtin.debug:
     var: docker_installed
+
+- name: Ansible set facts
+  ansible.builtin.set_fact:
+    hostname: "{{ ansible_facts['nodename'] }}"
+    operating_system: "{{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
+    service_manager: "{{ ansible_facts['service_mgr'] }}"
+    memory_total: "{{ ansible_facts['memtotal_mb'] }}"
+    #memory_free: "{{ ansible_facts['memory_mb']['nocache']['free'] }}" # Does not exist on dragonflybsd. 
+
+- name: Print relevant facts from ansible facts
+  ansible.builtin.debug:
+    msg:
+      - "hostname: {{ hostname }}"
+      - "operating_system: {{ operating_system }}"
+      - "service_manager: {{ service_manager }}"
+      - "memory_total (megabytes): {{ memory_total }}"

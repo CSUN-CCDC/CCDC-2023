@@ -1,0 +1,7 @@
+---
+- name: Just for creating the ansible inventory
+  become: true  # If you need to run tasks with elevated privileges, such as sudo
+  hosts: all
+  gather_facts: true
+
+  tasks:
