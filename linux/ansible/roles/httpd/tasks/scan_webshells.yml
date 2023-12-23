@@ -6,6 +6,9 @@
 - name: Convert commmand output to json
   ansible.builtin.set_fact:
     webshell_command_json: "{{ webshell_command.stdout | from_json }}"
+- name: Print webshell comand output
+  ansible.builtin.debug:
+    var: webshell_command_json
 - name: Append output to list
   ansible.builtin.set_fact:
     webshell_scan_results: "{{ webshell_scan_results + [webshell_command_json] }}"
