@@ -8,6 +8,7 @@ let
     molecule
     molecule-plugins
     dnspython
+    jmespath
     # other python packages
   ];
   #vagrantPackage = if builtins.pathExists /etc/wsl.conf then "" else "vagrant";
