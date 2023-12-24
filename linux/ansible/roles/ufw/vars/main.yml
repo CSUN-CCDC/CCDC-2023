@@ -1,3 +1,5 @@
 ufw_lockdown: false # boolean, locks down ufw to only allow connections from your ip address
 
+ufw_source_ips: [] # List of ip addresses to accept all connections from. 
+
 ufw_open_ports: [] # List (litarally an ansible list) E.g: [80, 443].

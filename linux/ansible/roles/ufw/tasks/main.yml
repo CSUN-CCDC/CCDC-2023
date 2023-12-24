@@ -22,11 +22,24 @@
     - name: Ufw only allow control node ip address
       community.general.ufw:
         rule: allow
-        from_ip: '{{ control_node_ip }}'
+        from_ip: "{{ control_node_ip }}"
     - name: UFW deny by default
       community.general.ufw:
         state: enabled
         policy: deny
+
+- name: Ufw source ips
+  when: ufw_source_ips | length > 0
+  become: true
+  block:
+    - name: Ufw loop and allow source ip's
+      community.general.ufw:
+        rule: allow
+        from_ip: "{{ item }}"
+      loop: "{{ ufw_source_ips }}"
+    - name: Reload ufw
+      community.general.ufw:
+        state: enabled
 
 - name: Ufw open ports
   become: true

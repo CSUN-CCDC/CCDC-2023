@@ -1,6 +1,6 @@
 ---
 
-# Needs python-firewall on the "host that executes the module" Whicch is that?
+# Needs python-firewall on the "host that executes the module." Which is that?
 
 - name: Lockdown to only control node ip address
   when: firewalld_lockdown
@@ -45,6 +45,22 @@
         permanent: true
       loop: "{{ firewalld_ports.stdout.split(' ') }}"
     - name: Reload firewalld service
+      ansible.builtin.service:
+        name: firewalld
+        state: restarted
+
+- name: Firewalld source ip addresses
+  when: firewalld_source_ips | length > 0
+  become: true
+  block:
+    - name: Allow source ips
+      ansible.posix.firewalld:
+        source: "{{ item }}"
+        zone: trusted
+        permanent: true
+        state: enabled
+      loop: "{{ firewalld_source_ips }}"
+    - name: Restart firewalld
       ansible.builtin.service:
         name: firewalld
         state: restarted

@@ -4,17 +4,19 @@
 
   roles:
     - role: "../roles/facts"
-    # - role: "../roles/ufw"
-    #   vars:
-    #     ufw_lockdown: true
-    # - role: "../roles/ufw"
-    #   vars:
-    #     ufw_open_ports: [80,443]
+    - role: "../roles/ufw"
+      vars:
+        ufw_lockdown: true
+        ufw_source_ips:
+          - 192.168.121.63
+          - 1.1.1.1
     # - role: "../roles/firewalld"
     #   vars:
     #     firewalld_lockdown: true
-    - role: "../roles/iptables"
-      vars:
-        iptables_lockdown: true
-        iptables_source_ips:
-          - "192.168.121.63"
+    #     firewalld_source_ips:
+    #       - 192.168.122.12
+    # - role: "../roles/iptables"
+    #   vars:
+    #     iptables_lockdown: true
+    #     iptables_source_ips:
+    #       - "192.168.121.63"
