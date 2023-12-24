@@ -19,6 +19,3 @@
     - name: Print webshells
       ansible.builtin.debug:
         var: webshell_scan_results
-
-# Now how to parse the json that webshell analyzer outputs?
-

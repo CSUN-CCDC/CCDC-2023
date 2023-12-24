@@ -2,7 +2,7 @@
 # Scanner used: https://github.com/tstillz/webshell-analyzer
 # Have to use https://news.ycombinator.com/item?id=22296801 to get it to staticly compile properly
 
-httpd_scan_webshells: false # If to scan with the for webshells. Only scans right now, does not delete or quarantine.
+httpd_scan_webshells: false # If to scan with the for webshells. Only scans and prints outputs right now, does not delete or quarantine.
 httpd_scan_directories: ['/var/www/html']
 httpd_scan_quarantine: true # Does nothing right now
 

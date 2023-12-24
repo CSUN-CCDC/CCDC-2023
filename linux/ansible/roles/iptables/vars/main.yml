@@ -1,0 +1,11 @@
+
+
+iptables_lockdown: false # boolean, if enabled will drop all rulesets and only allow ip address of control node to access the machine.
+
+iptables_source_ips: [] # List of source ips to accept all connections from
+
+# Trying to use "all" or a catch all for the iptables modules fails. A protocol *must* be used.
+# Two seperate lists is a simple way to achieve this
+iptables_open_ports_tcp: [] # List of ports
+iptables_open_ports_udp: []
+

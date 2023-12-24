@@ -10,7 +10,11 @@
     # - role: "../roles/ufw"
     #   vars:
     #     ufw_open_ports: [80,443]
-    - role: "../roles/firewalld"
+    # - role: "../roles/firewalld"
+    #   vars:
+    #     firewalld_lockdown: true
+    - role: "../roles/iptables"
       vars:
-        firewalld_lockdown: true
-
+        iptables_lockdown: true
+        iptables_source_ips:
+          - "192.168.121.63"

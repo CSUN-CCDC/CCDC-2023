@@ -1,0 +1,54 @@
+---
+
+- name: Lockdown iptables to only allow control node ip to access the machine
+  when: iptables_lockdown is true
+  become: true
+  block:
+    - name: Set iptables INPUT policy accept
+      ansible.builtin.iptables:
+        chain: INPUT
+        policy: ACCEPT
+    - name: Iptables flush existing input chain policies
+      ansible.builtin.iptables:
+        chain: INPUT
+        flush: true
+    - name: Iptables accept source ip
+      ansible.builtin.iptables:
+        chain: INPUT
+        source: "{{ control_node_ip }}"
+        jump: ACCEPT
+    - name: Iptables input drop by default
+      ansible.builtin.iptables:
+        chain: INPUT
+        policy: DROP
+
+- name: Iptables source ip addresses
+  when: iptables_source_ips | length > 0
+  become: true
+  block:
+    - name: Iptables loop through and accept source ip addresses
+      ansible.builtin.iptables:
+        chain: INPUT
+        source: "{{ item }}"
+        jump: ACCEPT
+      loop: "{{ iptables_source_ips }}"
+
+- name: Open tcp ports with iptables
+  become: true
+  when: iptables_open_ports_tcp | length > 0
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: "{{ item }}"
+    jump: ACCEPT
+  loop: "{{ iptables_open_ports_tcp }}"
+
+- name: Open udp ports with iptables
+  become: true
+  when: iptables_open_ports_udp | length > 0
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: udp
+    destination_port: "{{ item }}"
+    jump: ACCEPT
+  loop: "{{ iptables_open_ports_udp }}"

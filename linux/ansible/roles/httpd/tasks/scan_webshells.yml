@@ -3,15 +3,13 @@
   ansible.builtin.command: "/bin/webshell-analyzer -dir {{ item }} -pretty"
   changed_when: false
   register: webshell_command
-- name: Print webshell command output lines
-  ansible.builtin.debug:
-    var: webshell_command.stdout_lines
-- name: Convert commmand output to json
-  ansible.builtin.set_fact:
-    webshell_command_json: "{{ webshell_command.stdout | community.general.json_query(filePath) }}" #| map(attribute='filePath') | list }}"
+# This doesn't work. The command outputs multiple json pieces, and there's no easy way to filter it.
+# - name: Convert commmand output to json
+#   ansible.builtin.set_fact:
+#     webshell_command_json: "{{ webshell_command.stdout | community.general.json_query(filePath) }}" #| map(attribute='filePath') | list }}"
 - name: Print webshell comand output
   ansible.builtin.debug:
-    var: webshell_command_json
-- name: Append output to list
-  ansible.builtin.set_fact:
-    webshell_scan_results: "{{ webshell_scan_results + [webshell_command_json] }}"
+    var: webshell_command
+# - name: Append output to list
+#   ansible.builtin.set_fact:
+#     webshell_scan_results: "{{ webshell_scan_results + [webshell_command_json] }}"
