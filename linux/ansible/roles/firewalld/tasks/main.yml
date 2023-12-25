@@ -6,6 +6,10 @@
   when: firewalld_lockdown
   become: true
   block:
+    - name: Check if control_node_ip exists
+      ansible.builtin.assert:
+        that: control_node_ip is defined
+        fail_msg: "Please run the facts role before running the firewall roles"
     - name: Set firewalld active zone
       ansible.posix.firewalld:
         zone: public
