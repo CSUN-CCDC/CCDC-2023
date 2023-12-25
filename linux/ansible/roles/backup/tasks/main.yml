@@ -6,7 +6,7 @@
   # ignore_errors: true # Do I need this option?
 
 - name: Archive and fetch directories
-  when: backup_directories is defined
+  when: backup_directories | length > 0
   block:
     # Gitignore part can probably be merged into a single task
     # Also a when statement, for when it's not needed.
@@ -20,7 +20,7 @@
       ansible.builtin.fetch:
         src: /tmp/gitignore
         dest: "{{ playbook_dir }}/backups/.gitignore"
-        flat: yes
+        flat: true
     - name: Delete gitignore
       become: true
       ansible.builtin.file:
@@ -40,8 +40,8 @@
       become: true # This shouldn't need become, but just in case
       ansible.builtin.fetch:
         src: "/{{ item | replace('/', '_') }}.tar.gz"
-        dest: "{{ playbook_dir }}/backups/{{ ansible_facts['nodename'] }}/"
-        flat: yes
+        dest: "{{ playbook_dir }}/backups/{{ version }}/{{ inventory_hostname }}/"
+        flat: true
       loop: "{{ backup_directories }}"
 
     - name: Delete backup on system
@@ -50,3 +50,12 @@
         state: absent
         path: "/{{ item | replace('/', '_') }}.tar.gz"
       loop: "{{ backup_directories }}"
+
+- name: Restore backed up directories
+  when: backup_restore_directories | lenght > 0
+  become: true
+  block:
+    - name: Copy tar.gz to the server
+      ansible.builtin.copy:
+        src: 
+        dest: 

@@ -5,12 +5,14 @@ all:
       ansible_connection: local
     
 
-testing:
+thisisagroup:
   hosts:
-    192.168.121.94:
-      ansible_ssh_user: moon
-      ansible_ssh_pass: yeet
-      ansible_become_password: yeet
+    test_host:
+      ansible_ssh_host: 192.168.121.200
+  vars:
+    ansible_ssh_user: vagrant
+    ansible_ssh_pass: vagrant
+    ansible_become_pass: vagrant
 
 # thisisagroup:
 #   hosts:

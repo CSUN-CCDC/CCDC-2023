@@ -2,6 +2,11 @@
 - name: Playbook for testing firewall related roles
   hosts: all
 
+  tasks:
+    - name: Print hostname
+      ansible.builtin.debug:
+        msg: "{{ inventory_hostname }}"
+
   roles:
     - role: "../roles/facts"
     # - role: "../roles/ufw"
