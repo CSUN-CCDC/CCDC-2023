@@ -8,6 +8,23 @@
 - name: Archive and fetch directories
   when: backup_directories | length > 0
   block:
+    - name: Check if backup_version is set
+      ansible.builtin.assert:
+        that: backup_version is defined
+        fail_msg: "Please set the backup_version variable for this role"
+    - name: Ensure trailing slash is used
+      ansible.builtin.assert:
+        that: "{{ item[-1] == '/' }}"
+        fail_msg: "Please use trailing slashes. E.G: /etc/systemd/"
+      loop: "{{ backup_directories }}"
+    # - name: Locate symlinks
+    #   become: true
+    #   ansible.builtin.find:
+    #     file_type: link
+    #     recurse: true
+    #     paths: "{{ item }}"
+    #   loop: "{{ backup_directories }}"
+    #   register: found_symlinks
     # Gitignore part can probably be merged into a single task
     # Also a when statement, for when it's not needed.
     - name: Create .gitignore file
@@ -32,30 +49,63 @@
       when: backup_directories is defined
       community.general.archive:
         path: "{{ item }}"
-        dest: "/{{ item | replace('/', '_') }}.tar.gz"
+        dest: "/{{ item | replace('/', '_d_') }}.tar.gz"
         mode: '0644'
       loop: "{{ backup_directories }}"
-
     - name: Fetch backed up directories
       become: true # This shouldn't need become, but just in case
       ansible.builtin.fetch:
-        src: "/{{ item | replace('/', '_') }}.tar.gz"
-        dest: "{{ playbook_dir }}/backups/{{ version }}/{{ inventory_hostname }}/"
+        # The below results in ansible fetching //directory.tar.gz. This works, but maybe it's not consistent?
+        src: "/{{ item | replace('/', '_d_') }}.tar.gz"
+        dest: "{{ playbook_dir }}/backups/{{ backup_version }}/{{ inventory_hostname }}/"
         flat: true
       loop: "{{ backup_directories }}"
-
     - name: Delete backup on system
       become: true
       ansible.builtin.file:
         state: absent
-        path: "/{{ item | replace('/', '_') }}.tar.gz"
+        path: "/{{ item | replace('/', '_d_') }}.tar.gz"
       loop: "{{ backup_directories }}"
 
 - name: Restore backed up directories
-  when: backup_restore_directories | lenght > 0
+  when: backup_restore | length > 0
   become: true
   block:
+    - name: Check if backup_version is set
+      ansible.builtin.assert:
+        that: backup_version is defined
+        fail_msg: "Please set the backup_version variable for this role"
+    - name: Ensure trailing slash is used
+      ansible.builtin.assert:
+        that: "{{ item[-1] == '/' }}"
+        fail_msg: "Please use trailing slashes. E.G: /etc/systemd/"
+      loop: "{{ backup_restore }}"
     - name: Copy tar.gz to the server
+      become: true
       ansible.builtin.copy:
-        src: 
-        dest: 
+        remote_src: false # Searches for file on the controller node
+        src: "{{ playbook_dir }}/backups/{{ backup_version }}/{{ inventory_hostname }}/{{ item | replace('/', '_d_') }}.tar.gz"
+        dest: "/{{ item | replace('/', '_d_') }}.tar.gz"
+        mode: '0644'
+      loop: "{{ backup_restore }}"
+
+    # - name: Delete directories
+    #   ansible.builtin.file:
+    #     name: "{{ item }}"
+    #     state: absent
+    #  loop: "{{ backup_restore }}"
+    - name: Extract item to spot
+      become: true
+      ansible.builtin.unarchive:
+        remote_src: true # False makes it copy from local node. What if we don't have enough ram?
+        src: "/{{ item | replace('/', '_d_') }}.tar.gz"
+        dest: "{{ item | replace('_d_', '/') }}"
+        #creates: "{{ item }}"
+        mode: '0744'
+      loop: "{{ backup_restore }}"
+    - name: Delete backup on system
+      become: true
+      ansible.builtin.file:
+        state: absent
+        path: "/{{ item | replace('/', '_d_') }}.tar.gz"
+      loop: "{{ backup_restore }}"

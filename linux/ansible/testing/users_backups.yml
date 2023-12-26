@@ -2,9 +2,14 @@
 - name: Playbook aimed at debian, to test shuffling the users role
   hosts: all
   roles:
+    - role: "../roles/facts"
     - role: "../roles/backup"
       vars:
-        backup_directories: ["/etc/systemd"]
+        backup_version: "new"
+        backup_directories:
+          - /etc/systemd/
+        # backup_restore:
+        #   - /etc/systemd/
     # - role: "../roles/users"
     #   vars:
     #     users_admins: ["vagrant", "root"]
