@@ -1,5 +1,3 @@
-
-
 iptables_lockdown: false # boolean, if enabled will drop all rulesets and only allow ip address of control node to access the machine.
 
 iptables_source_ips: [] # List of ip addresses, from which to accept all connections.
@@ -8,4 +6,3 @@ iptables_source_ips: [] # List of ip addresses, from which to accept all connect
 # Two seperate lists is a simple way to achieve this
 iptables_open_ports_tcp: [] # List of ports
 iptables_open_ports_udp: [] # List of ports
-

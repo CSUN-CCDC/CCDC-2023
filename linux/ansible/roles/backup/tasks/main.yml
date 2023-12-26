@@ -88,20 +88,20 @@
         dest: "/{{ item | replace('/', '_d_') }}.tar.gz"
         mode: '0644'
       loop: "{{ backup_restore }}"
-
-    # - name: Delete directories
-    #   ansible.builtin.file:
-    #     name: "{{ item }}"
-    #     state: absent
-    #  loop: "{{ backup_restore }}"
+    - name: Ensure directory is present
+      become: true
+      ansible.builtin.file:
+        name: "{{ item }}"
+        state: directory
+        # No mode here, because the defaults are alright, but we don't want it to change the existing mode if it is different.
+      loop: "{{ backup_restore }}"
     - name: Extract item to spot
       become: true
       ansible.builtin.unarchive:
-        remote_src: true # False makes it copy from local node. What if we don't have enough ram?
+        # False makes it copy from local node. I don't know how ansible unarchives, so with this it writes to disk rather than using ram.
+        remote_src: true
         src: "/{{ item | replace('/', '_d_') }}.tar.gz"
         dest: "{{ item | replace('_d_', '/') }}"
-        #creates: "{{ item }}"
-        mode: '0744'
       loop: "{{ backup_restore }}"
     - name: Delete backup on system
       become: true

@@ -4,4 +4,3 @@ backup_version: # A very simple version control. String, sets what "version" of 
 backup_directories: []
 
 backup_restore: [] # List of directories to restore. Restores from the version
-
