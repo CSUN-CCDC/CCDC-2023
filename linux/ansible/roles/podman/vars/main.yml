@@ -1,0 +1,7 @@
+podman_user: true # String, of the user to become
+podman_user_password: "{{ ansible_become_user_password }}"
+
+podman_backup_version: # A simple version control, use a string.
+podman_backup_containers: [] # String of containers to backup.
+
+podman_restore_containers: [] # List of podman containers, this will load their images in the format 'container:docker_backup_version'

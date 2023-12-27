@@ -2,15 +2,131 @@
 
 - name: Update some or all docker containers
   become: true
-  when: docker_update_docker_container is true
+  when: docker_update is true
   community.docker.docker_container:
     name: watchtower
     image: docker.io/containrrr/watchtower
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-    command: "--run-once {{ docker_containers_to_be_updated | join(' ') }}"
+    command: "--run-once {{ docker_update_containers | join(' ') }}"
 
-- name: Debug test
-  ansible.builtin.debug:
-  var:
-    docker_containers_to_be_updated
+- name: Docker backup containers
+  become: true
+  when: docker_backup_containers | length > 0
+  block:
+    - name: Assert version is defined
+      ansible.builtin.assert:
+        that: docker_backup_version is defined
+        fail_msg: "Please set docker_backup_version"
+    - name: Create .gitignore file
+      become: true
+      ansible.builtin.template:
+        src: templates/gitignore.j2
+        dest: /tmp/gitignore
+        mode: '0644'
+    - name: Fetch gitignore
+      ansible.builtin.fetch:
+        src: /tmp/gitignore
+        dest: "{{ playbook_dir }}/docker/.gitignore"
+        flat: true
+    - name: Delete gitignore from server
+      become: true
+      ansible.builtin.file:
+        path: /tmp/gitignore
+        state: absent
+
+    - name: Commit docker containers to images
+      become: true
+      ansible.builtin.command: "docker commit {{ item }} {{ item }}:{{ docker_backup_version }}"
+      changed_when: true
+      loop: "{{ docker_backup_containers }}"
+    - name: Export the docker images
+      become: true
+      ansible.builtin.command: "docker save {{ item }}:{{ docker_backup_version }} --output /{{ item }}.tar.gz"
+      changed_when: true
+      loop: "{{ docker_backup_containers }}"
+    - name: Fetch the docker images
+      ansible.builtin.fetch:
+        src: "/{{ item }}.tar.gz"
+        dest: "{{ playbook_dir }}/docker/{{ docker_backup_version }}/containers/{{ item }}.tar.gz"
+        flat: true
+      loop: "{{ docker_backup_containers }}"
+    - name: Delete docker images from server
+      ansible.builtin.file:
+        name: "/{{ item }}.tar.gz"
+        state: absent
+      loop: "{{ docker_backup_containers }}"
+    - name: Export docker container to compose file
+      ansible.builtin.shell: "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/red5d/docker-autocompose {{ item }} > /{{ item }}.yml"
+      changed_when: false
+      loop: "{{ docker_backup_containers }}"
+    - name: Change the image and replace it with something else
+      ansible.builtin.lineinfile:
+        path: "/{{ item }}.yml"
+        regexp: '^ *image: .*'
+        line: '    image: "{{ item }}:{{ docker_backup_version }}"'
+      loop: "{{ docker_backup_containers }}"
+    - name: Docker download compose files
+      ansible.builtin.fetch:
+        src: "/{{ item }}.yml"
+        dest: "{{ playbook_dir }}/docker/{{ docker_backup_version }}/compose/{{ item }}.yml"
+        flat: true
+      loop: "{{ docker_backup_containers }}"
+    - name: Delete docker compose files from server
+      ansible.builtin.file:
+        path: "/{{ item }}.yml"
+        state: absent
+      loop: "{{ docker_backup_containers }}"
+
+- name: Docker backup volumes
+  become: true
+  when: docker_backup_volumes | length > 0
+  block:
+    - name: Assert version is defined
+      ansible.builtin.assert:
+        that: docker_backup_version is defined
+        fail_msg: "Please set docker_backup_version"
+
+- name: Docker restore containers
+  become: true
+  when: docker_restore_containers | length > 0
+  block:
+    - name: Assert version is defined
+      ansible.builtin.assert:
+        that: docker_backup_version is defined
+        fail_msg: "Please set docker_backup_version"
+    - name: Copy image to server
+      ansible.builtin.copy:
+        remote_src: false
+        src: "{{ playbook_dir }}/docker/{{ docker_backup_version }}/containers/{{ item }}.tar.gz"
+        dest: "/{{ item }}.tar.gz"
+        mode: '0644'
+      loop: "{{ docker_restore_containers }}"
+    - name: Load docker images
+      ansible.builtin.command: "docker load --input /{{ item }}.tar.gz"
+      changed_when: true
+      loop: "{{ docker_restore_containers }}"
+    - name: Delete docker targz images
+      ansible.builtin.file:
+        path: "/{{ item }}.tar.gz"
+        state: absent
+      loop: "{{ docker_restore_containers }}"
+    - name: Create folders for the docker-compose files
+      ansible.builtin.file:
+        path: "/opt/ccdc/compose/{{ docker_backup_version }}/{{ item }}/"
+        state: directory
+      loop: "{{ docker_restore_containers  }}"
+    - name: Copy docker-compose files to remote server
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/docker/{{ docker_backup_version }}/compose/{{ item }}.yml"
+        dest: "/opt/ccdc/compose/{{ docker_backup_version }}/{{ item }}/docker-compose.yml"
+        mode: '0644'
+      loop: "{{ docker_restore_containers }}"
+
+    # Requires docker python library, which might not be there.
+    - name: Docker execute compose file
+      when: docker_restore_compose
+      community.docker.docker_compose:
+        project_src: "/opt/ccdc/compose/{{ docker_backup_version }}/{{ item }}/"
+        state: present
+      loop: "{{ docker_restore_containers }}"

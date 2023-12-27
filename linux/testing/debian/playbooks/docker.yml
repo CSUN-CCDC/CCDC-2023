@@ -9,11 +9,11 @@
       ansible.builtin.apt:
         update_cache: true
         name: docker.io
-    - name: Add vagrant user to sudo
+    - name: Add vagrant user to sudo and docker
       ansible.builtin.user:
         name: vagrant
         append: true
-        groups: sudo  # Add the user to the sudo group
+        groups: sudo,docker  # Add the user to the sudo group
     - name: Create Wheel group
       ansible.builtin.group:
         name: wheel
@@ -25,3 +25,12 @@
         groups: ["wheel", "sudo", "docker", "adm"] # Add the user to the wheel group
         createhome: true
         shell: /bin/bash
+    - name: Run Alpine Container
+      become: true
+      community.docker.docker_container:
+        name: alpine_container
+        image: docker.io/alpine
+        state: started
+        command: tail -f /dev/null
+        ports:
+          - "80:8000"

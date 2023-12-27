@@ -1,8 +1,13 @@
-
-
 # Watchtower docker container updater
-docker_update_docker_container: false # whether or not to update docker containers
-docker_containers_to_be_updated: [] # By default, watchtower updates all containers. This causes it to only update a few. This is a list
+docker_update: false # whether or not to update docker containers
+docker_update_containers: [] # By default, watchtower updates all containers. This causes it to only update a few. This is a list
 
 
-docker_backups: [] # String of containers to update. Currently unused.
+docker_backup_version: # A simple version control, use a string.
+docker_backup_containers: [] # String of containers to backup.
+
+docker_restore_containers: [] # List of docker containers, this will load their images in the format 'container:docker_backup_version'
+
+# This will also attempt to launch the docker containers using saved compose files. 
+# This requires the docker python library and probably won't work anyways
+docker_restore_compose: false

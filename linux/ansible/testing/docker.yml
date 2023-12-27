@@ -1,0 +1,16 @@
+---
+- name: Playbook for testing webserver related roles
+  hosts: all
+
+  roles:
+    - role: "../roles/facts"
+    - role: "../roles/docker"
+      vars:
+        docker_update: false
+        docker_update_containers:
+          - alpine_container
+        docker_backup_version: fresh
+        docker_restore_containers:
+          - alpine_container
+        #docker_backup_containers:
+        #  - alpine_container
