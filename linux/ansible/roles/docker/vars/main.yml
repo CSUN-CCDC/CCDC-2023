@@ -11,3 +11,6 @@ docker_restore_containers: [] # List of docker containers, this will load their 
 # This will also attempt to launch the docker containers using saved compose files. 
 # This requires the docker python library and probably won't work anyways
 docker_restore_compose: false
+
+
+docker_backup_volumes: []

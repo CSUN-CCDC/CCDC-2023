@@ -48,7 +48,7 @@
     - name: Fetch the docker images
       ansible.builtin.fetch:
         src: "/{{ item }}.tar.gz"
-        dest: "{{ playbook_dir }}/docker/{{ docker_backup_version }}/containers/{{ item }}.tar.gz"
+        dest: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/{{ docker_backup_version }}/{{ item }}.tar.gz"
         flat: true
       loop: "{{ docker_backup_containers }}"
     - name: Delete docker images from server
@@ -69,7 +69,7 @@
     - name: Docker download compose files
       ansible.builtin.fetch:
         src: "/{{ item }}.yml"
-        dest: "{{ playbook_dir }}/docker/{{ docker_backup_version }}/compose/{{ item }}.yml"
+        dest: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/{{ docker_backup_version }}/{{ item }}.yml"
         flat: true
       loop: "{{ docker_backup_containers }}"
     - name: Delete docker compose files from server
@@ -98,7 +98,7 @@
     - name: Copy image to server
       ansible.builtin.copy:
         remote_src: false
-        src: "{{ playbook_dir }}/docker/{{ docker_backup_version }}/containers/{{ item }}.tar.gz"
+        src: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/{{ docker_backup_version }}/{{ item }}.tar.gz"
         dest: "/{{ item }}.tar.gz"
         mode: '0644'
       loop: "{{ docker_restore_containers }}"
@@ -118,7 +118,7 @@
       loop: "{{ docker_restore_containers  }}"
     - name: Copy docker-compose files to remote server
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/docker/{{ docker_backup_version }}/compose/{{ item }}.yml"
+        src: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/{{ docker_backup_version }}/{{ item }}.yml"
         dest: "/opt/ccdc/compose/{{ docker_backup_version }}/{{ item }}/docker-compose.yml"
         mode: '0644'
       loop: "{{ docker_restore_containers }}"
