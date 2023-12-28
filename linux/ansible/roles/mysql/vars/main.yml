@@ -1,0 +1,12 @@
+mysql_backup_version: # Backup version
+
+mysql_backup_databases: [] # String of database names
+
+
+mysql_user: "root" # User that runs mysql.
+
+mysql_password: # Password of the mysql root user
+
+mysql_host: 127.0.0.1 # Host to connect to.
+
+mysql_users_passwords_shuffle: false # Set to true to shuffle all passwords. 

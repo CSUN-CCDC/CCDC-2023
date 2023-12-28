@@ -4,13 +4,14 @@
 Vagrant.configure("2") do |config|
 
     config.vm.synced_folder ".", "/vagrant", disabled: true
-    #config.vm.provision "shell", path: "provision.sh"
+    config.vm.provision "shell", path: "scripts/packages.sh"
 
-    config.vm.define "focal" do |vmconfig|
+    config.vm.define "arch" do |vmconfig|
+        #vmconfig.vm.provision "shell", path: "provision.sh"
         vmconfig.vm.provision "ansible" do |ansible|
-            ansible.playbook = "playbooks/provision.yml"
+            ansible.playbook = "playbooks/inventory.yml"
         end
-        vmconfig.vm.box = "generic/ubuntu2004"
+        vmconfig.vm.box = "archlinux/archlinux"
         vmconfig.vm.provider "libvirt" do |libvirt|
             libvirt.driver = "kvm"
             libvirt.memory = 1024
@@ -23,33 +24,25 @@ Vagrant.configure("2") do |config|
             virtualbox.cpus = 1
             #override.vm.network "private_network", ip: "192.168.56.4"
         end
-        vmconfig.vm.provider "vmware_desktop" do |vmware, override|
-            vmware.vmx["memsize"] = "1024"
-            vmware.vmx["numvcpus"] = "1"
-        end
-        
     end
-
-    config.vm.define "lamp" do |vmconfig|
-        # Basically focal, but with a webshell installed as well.
-
+    config.vm.define "podman" do |vmconfig|
+        #vmconfig.vm.provision "shell", path: "provision.sh"
         vmconfig.vm.provision "ansible" do |ansible|
-            ansible.playbook = "playbooks/lamp.yml"
+            ansible.playbook = "playbooks/podman.yml"
+            ansible.compatibility_mode = "2.0"
         end
-        vmconfig.vm.box = "techchad2022/lamp" # Ubuntu 22.04 LTS, Jammy Jellyfish 
-        # sql user: root. Sql password: "Password123!"
+        vmconfig.vm.box = "generic/arch"
         vmconfig.vm.provider "libvirt" do |libvirt|
             libvirt.driver = "kvm"
-            libvirt.memory = 2048
+            libvirt.memory = 1024
             libvirt.cpus = 2
             libvirt.video_type = "virtio"
             #libvirt.graphics_type = "vnc"
         end
-        vmconfig.vm.provider "virtualbox" do |virtualbox,override|
-            virtualbox.memory = 2048
+        vmconfig.vm.provider "virtualbox" do |virtualbox|
+            virtualbox.memory = 1024
             virtualbox.cpus = 1
             #override.vm.network "private_network", ip: "192.168.56.4"
         end
-        
     end
 end

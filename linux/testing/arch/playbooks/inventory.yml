@@ -1,0 +1,24 @@
+---
+- name: Provision arch VM
+  become: true  # If you need to run tasks with elevated privileges, such as sudo
+  hosts: all
+
+  tasks:
+    - name: Configure sshd
+      become: true
+      ansible.builtin.lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: "^PasswordAuthentication"
+        line: "PasswordAuthentication yes"
+        state: present
+        backup: true
+    - name: Give vagrant user vagrant password
+      become: true
+      ansible.builtin.user:
+        name: "vagrant"
+        password: "{{ 'vagrant' | password_hash('sha512') }}"
+    - name: Restart sshd
+      become: true
+      ansible.builtin.service:
+        name: "sshd"
+        state: restarted

@@ -25,12 +25,17 @@
         groups: ["wheel", "sudo", "docker", "adm"] # Add the user to the wheel group
         createhome: true
         shell: /bin/bash
+    - name: Create docker volume
+      community.docker.docker_volume:
+        name: test_volume
     - name: Run Alpine Container
       become: true
       community.docker.docker_container:
         name: alpine_container
         image: docker.io/alpine
         state: started
+        volumes:
+          - test_volume:/avolume
         command: tail -f /dev/null
         ports:
           - "80:8000"

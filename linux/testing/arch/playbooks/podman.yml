@@ -1,0 +1,54 @@
+---
+- name: Provision arch vm with podman
+  become: true  # If you need to run tasks with elevated privileges, such as sudo
+  hosts: all
+
+  tasks:
+    - name: Configure sshd
+      become: true
+      ansible.builtin.lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: "^PasswordAuthentication"
+        line: "PasswordAuthentication yes"
+        state: present
+        backup: true
+    - name: Give vagrant user vagrant password
+      become: true
+      ansible.builtin.user:
+        name: "vagrant"
+        password: "{{ 'vagrant' | password_hash('sha512') }}"
+    - name: Restart sshd
+      become: true
+      ansible.builtin.service:
+        name: "sshd"
+        state: restarted
+    - name: Install podman
+      ansible.builtin.package:
+        name: podman
+        state: present
+    - name: Ensure the user is present
+      ansible.builtin.user:
+        name: podmaner
+        #home: /home/podmaner
+        shell: /bin/bash
+        #createhome: yes
+        password: "{{ 'podmaner' | password_hash('sha512') }}"
+    - name: Loginctl enable linger podman_user
+      ansible.builtin.command: "loginctl enable-linger podmaner"
+      changed_when: true
+    - name: What user an am I?
+      become_user: podmaner
+      ansible.builtin.command: "whoami"
+      register: user
+    - name: Print user
+      ansible.builtin.debug:
+        var: user
+    - name: Ansible reboot?
+      ansible.builtin.reboot:
+    - name: Start alpine podman container under podmaner user
+      become_user: podmaner
+      containers.podman.podman_container:
+        name: alpine_container
+        image: docker.io/alpine
+        command: "tail -f /dev/null"
+

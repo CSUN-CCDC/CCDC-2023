@@ -1,0 +1,26 @@
+---
+
+- name: Login to mysql and list database information
+  ansible.builtin.mysql_db:
+    login_user: "{{ mysql_user }}"
+    login_password: "{{ mysql_password }}"
+    login_host: "{{ mysql_host }}"
+    name: "all"
+    query: "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA"
+- name: Backup mysql database
+  become: true
+  when: mysql_backup_databases | length > 0
+  block:
+    - name: Check that mysql_backup_version is set
+      ansible.builtin.assert:
+        that: mysql_backup_version is defined
+        fail_msg: "Please set mysql_backup_version"
+    - name: Dump MySQL database
+      community.mysql.mysql_db:
+        login_user: "{{ mysql_user }}"
+        login_password: "{{ mysql_password }}"
+        name: "all"
+        state: dump
+        target: "/mysql.sql"
+      become_user: "{{ mysql_user }}"
+      

@@ -8,7 +8,7 @@ docker_backup_containers: [] # String of containers to backup.
 
 docker_restore_containers: [] # List of docker containers, this will load their images in the format 'container:docker_backup_version'
 
-# This will also attempt to launch the docker containers using saved compose files. 
+# This will also attempt to launch the docker containers using saved compose files.
 # This requires the docker python library and probably won't work anyways
 docker_restore_compose: false
 
