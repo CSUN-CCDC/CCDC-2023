@@ -1,1 +1,1 @@
-sudo pacman -Syu --noconfirm python3
+sudo pacman -Syu --noconfirm --needed python3

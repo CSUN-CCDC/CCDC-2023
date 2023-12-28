@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
         vmconfig.vm.provision "ansible" do |ansible|
             ansible.playbook = "playbooks/inventory.yml"
         end
-        vmconfig.vm.box = "archlinux/archlinux"
+        vmconfig.vm.box = "generic/arch"
         vmconfig.vm.provider "libvirt" do |libvirt|
             libvirt.driver = "kvm"
             libvirt.memory = 1024

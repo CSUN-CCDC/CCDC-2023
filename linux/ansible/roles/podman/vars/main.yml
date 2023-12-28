@@ -1,5 +1,5 @@
-podman_user: true # String, of the user to become
-podman_user_password: "{{ ansible_become_user_password }}"
+podman_user: root # String, of the user to become
+
 
 podman_backup_version: # A simple version control, use a string.
 podman_backup_containers: [] # String of containers to backup.

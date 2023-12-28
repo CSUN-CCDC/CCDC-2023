@@ -36,19 +36,28 @@
     - name: Loginctl enable linger podman_user
       ansible.builtin.command: "loginctl enable-linger podmaner"
       changed_when: true
-    - name: What user an am I?
-      become_user: podmaner
-      ansible.builtin.command: "whoami"
-      register: user
-    - name: Print user
-      ansible.builtin.debug:
-        var: user
+    - name: Enable systemd-logind
+      ansible.builtin.systemd_service:
+        name: "systemd-logind"
+        enabled: true
+        state: started
+
     - name: Ansible reboot?
       ansible.builtin.reboot:
+    # - name: Enable podman service
+    #   ansible.builtin.command: "su -c 'systemctl --user enable --now podman.service' podmaner"
+    - name: Enable podman user service
+      become_user: "podmaner"
+      ansible.builtin.systemd_service:
+        name: "podman.service"
+        enabled: true
+        state: started
+        scope: user
     - name: Start alpine podman container under podmaner user
       become_user: podmaner
       containers.podman.podman_container:
         name: alpine_container
         image: docker.io/alpine
         command: "tail -f /dev/null"
+
 

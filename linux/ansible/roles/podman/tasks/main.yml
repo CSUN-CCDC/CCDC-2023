@@ -4,7 +4,7 @@
   become: true
   block:
     - name: Assert that podman_backup_version is set
-      ansible.builint.assert:
+      ansible.builtin.assert:
         that: podman_backup_version is defined
         fail_msg: "Please set podman_backup_version"
     - name: Create .gitignore file
@@ -18,23 +18,33 @@
         src: /tmp/gitignore
         dest: "{{ playbook_dir }}/podman/.gitignore"
         flat: true
-    
+    - name: Delete gitignore
+      become: true
+      ansible.builtin.file:
+        path: /tmp/.gitignore
+        state: absent
     - name: Commit podman containers
+      become: true
       become_user: "{{ podman_user }}"
       ansible.builtin.command: "podman commit {{ item }} {{ item }}:{{ podman_backup_version }}"
+      changed_when: true
       loop: "{{ podman_backup_containers }}"
     - name: Export podman containers to images
+      become: true
       become_user: "{{ podman_user }}"
-      ansible.builtin.command: "podman save --format=docker-archive -o {{ lookup('env', 'HOME') }}/ {{ item }}{{ podman_backup_version }}.tar.gz"
+      ansible.builtin.command: "podman save --format docker-archive -o $HOME/{{ item }}.tar.gz {{ item }}:{{ podman_backup_version }}"
+      changed_when: true
       loop: "{{ podman_backup_containers }}"
     - name: Download podman container images
       become_user: "{{ podman_user }}"
       ansible.builtin.fetch:
         src: "$HOME/{{ item }}.tar.gz"
-        dest: "{{ playbook_dir }}/podman/{{ inventory_hostname }}/"
+        dest: "{{ playbook_dir }}/podman/{{ inventory_hostname }}/{{ podman_backup_version }}/"
         flat: true
+      loop: "{{ podman_backup_containers }}"
     - name: Delete container images
       become_user: "{{ podman_user }}"
       ansible.builtin.file:
-        path: "{{ lookup('env', 'HOME') }}/{{ item }}.tar.gz"
+        path: "$HOME/{{ item }}.tar.gz"
         state: absent
+      loop: "{{ podman_backup_containers }}"

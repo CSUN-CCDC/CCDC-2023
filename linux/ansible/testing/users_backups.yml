@@ -5,11 +5,11 @@
     - role: "../roles/facts"
     - role: "../roles/backup"
       vars:
-        backup_version: "chmod"
-        # backup_directories:
-        #   - /etc/systemd/
-        backup_restore:
+        backup_version: "fresh"
+        backup_directories:
           - /etc/systemd/
+        # backup_restore:
+        #   - /etc/systemd/
     # - role: "../roles/users"
     #   vars:
     #     users_admins: ["vagrant", "root"]

@@ -57,7 +57,7 @@
       ansible.builtin.fetch:
         # The below results in ansible fetching //directory.tar.gz. This works, but maybe it's not consistent?
         src: "/{{ item | replace('/', '_d_') }}.tar.gz"
-        dest: "{{ playbook_dir }}/backups/{{ backup_version }}/{{ inventory_hostname }}/"
+        dest: "{{ playbook_dir }}/backups/{{ inventory_hostname }}/{{ backup_version }}/"
         flat: true
       loop: "{{ backup_directories }}"
     - name: Delete backup on system
@@ -84,7 +84,7 @@
       become: true
       ansible.builtin.copy:
         remote_src: false # Searches for file on the controller node
-        src: "{{ playbook_dir }}/backups/{{ backup_version }}/{{ inventory_hostname }}/{{ item | replace('/', '_d_') }}.tar.gz"
+        src: "{{ playbook_dir }}/backups/{{ inventory_hostname }}/{{ backup_version }}/{{ item | replace('/', '_d_') }}.tar.gz"
         dest: "/{{ item | replace('/', '_d_') }}.tar.gz"
         mode: '0644'
       loop: "{{ backup_restore }}"
