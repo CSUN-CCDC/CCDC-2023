@@ -12,3 +12,6 @@
       vars:
         mysql_user: root
         mysql_password: Password123!
+        mysql_shuffle_passwords: true
+        #mysql_backup: true
+        mysql_backup_version: "test"

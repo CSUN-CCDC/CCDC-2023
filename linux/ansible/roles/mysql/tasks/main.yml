@@ -1,15 +1,26 @@
 ---
-
-- name: Login to mysql and list database information
-  ansible.builtin.mysql_db:
-    login_user: "{{ mysql_user }}"
-    login_password: "{{ mysql_password }}"
-    login_host: "{{ mysql_host }}"
-    name: "all"
-    query: "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA"
-- name: Backup mysql database
+- name: Gitignore
   become: true
-  when: mysql_backup_databases | length > 0
+  when: mysql_backup is true or mysql_shuffle_passwords is true
+  block:
+    - name: Create gitignore
+      ansible.builtin.template:
+        src: templates/gitignore.j2
+        dest: /tmp/gitignore
+        mode: '0644'
+    - name: Fetch gitignore
+      ansible.builtin.fetch:
+        src: /tmp/gitignore
+        dest: "{{ playbook_dir }}/mysql/.gitignore"
+        flat: true
+    - name: Delete gitignore file from server
+      ansible.builtin.file:
+        path: /tmp/gitignore
+        state: absent
+
+- name: Backup mysql database
+  become: "{{ inventory_hostname != localhost }}"
+  when: mysql_backup is true
   block:
     - name: Check that mysql_backup_version is set
       ansible.builtin.assert:
@@ -19,8 +30,93 @@
       community.mysql.mysql_db:
         login_user: "{{ mysql_user }}"
         login_password: "{{ mysql_password }}"
+        login_host: "{{ mysql_host }}"
+        login_port: "{{ mysql_port }}"
         name: "all"
         state: dump
-        target: "/mysql.sql"
-      become_user: "{{ mysql_user }}"
-      
+        target: "$HOME/mysql.sql.gz"
+    - name: Fetch msyql backup
+      ansible.builtin.fetch:
+        src: "$HOME/mysql.sql.gz"
+        # Must be changed, if we are running this playbook at localhost rather than the inventory hostname.
+        dest: "{{ playbook_dir }}/mysql/{{ inventory_hostname if mysql_host == localhost else mysql_host }}/{{ mysql_backup_version }}.sql.gz"
+        flat: true
+    - name: Delete mysql backup
+      ansible.builtin.file:
+        path: "$HOME/mysql.sql.gz"
+        state: absent
+
+- name: Restore mysql database
+  become: "{{ msyql_host != localhost }}"
+  when: mysql_restore is true
+  block:
+    - name: Copy mysql database to remote server
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/mysql/{{ playbook_dir }}/mysql/{{ inventory_hostname if mysql_host == localhost else mysql_host }}/{{ mysql_backup_version }}.sql.gz"
+        dest: "/tmp/mysql.sql.gz"
+    - name: Import database
+      community.mysql.mysql_db:
+        # How do do this. We need password to authenticate if doing remotely (mysql_host != localhost)... but what if we don't have it? (attacker deletes all users)
+
+
+
+
+- name: Shuffle db users
+  become: "{{ mysql_host != localhost }}"
+  when: mysql_shuffle_passwords is true
+  block:
+    - name: Create random location for passwords csv
+      ansible.builtin.set_fact:
+        sqlpasswordsfile: "{{ lookup('community.general.random_string', length=12, special=false) }}"
+    - name: Create scoring engine CSV
+      ansible.builtin.file:
+        dest: "/tmp/{{ sqlpasswordsfile }}"
+        mode: '0644'
+        state: touch
+    - name: Login to mysql and list database information
+      community.mysql.mysql_info:
+        login_user: "{{ mysql_user }}"
+        login_password: "{{ mysql_password }}"
+        filter:
+          - user_info
+      register: db_info
+    - name: Loop through db users, and shuffle them
+      ansible.builtin.include_tasks:
+        file: tasks/shuffle_passwords.yml
+      loop: "{{ db_info.users_info }}"
+      loop_control:
+        label: "{{ item.name }}@{{ item.host }}"
+    - name: Generate random password
+      ansible.builtin.set_fact:
+        # Specials is false here to ensure maximum compatibility with scoring engine.
+        new_password: "{{ lookup('community.general.random_string', length=12, special=false) }}"
+
+    # The mysql_user password is changed last, because this is the user ansible authenticates as. To change the password of it mid play, would lock us out.
+    # After this, we no longer need the authenticate to mysql.
+    - name: Change {{ mysql_user }} password
+      community.mysql.mysql_user:
+        login_user: "{{ mysql_user }}"
+        login_password: "{{ mysql_password }}"
+        login_host: "{{ mysql_host }}"
+        login_port: "{{ mysql_port }}"
+        name: "{{ mysql_user }}"
+        password: "{{ new_password }}"
+        state: present
+    - name: Export password changes to CSV
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ sqlpasswordsfile }}"
+        line: "{{ mysql_user }},{{ new_password }}"
+
+    - name: New {{ mysql_user }} mysql user password is
+      ansible.builtin.debug:
+        msg: "The new password for {{ mysql_user }} is {{ new_password }}"
+    - name: Fetch passwords csv
+      ansible.builtin.fetch:
+        src: "/tmp/{{ sqlpasswordsfile }}"
+        dest: "{{ playbook_dir }}/mysql/{{ inventory_hostname }}/passwordlist.csv"
+        flat: true
+    - name: Delete password list file from server
+      ansible.builtin.file:
+        path: "/tmp/{{ sqlpasswordsfile }}"
+        state: absent
+

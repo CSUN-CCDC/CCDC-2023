@@ -13,4 +13,6 @@ docker_restore_containers: [] # List of docker containers, this will load their 
 docker_restore_compose: false
 
 
-docker_backup_volumes: []
+docker_backup_volumes: [] # List of volumes to back up
+
+docker_restore_volumes: [] # List of docker volumes to restore. 

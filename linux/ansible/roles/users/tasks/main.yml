@@ -52,7 +52,7 @@
     - name: Fetch passwordlist
       ansible.builtin.fetch:
         src: "/tmp/{{ passwordlistfile }}"
-        dest: "{{ playbook_dir }}/passwords/{{ ansible_facts['nodename'] }}/passwordlist.csv"
+        dest: "{{ playbook_dir }}/passwords/{{ inventory_hostname }}/passwordlist.csv"
         flat: true
     - name: Delete passwordlist
       ansible.builtin.file:

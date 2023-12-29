@@ -35,7 +35,7 @@
         image: docker.io/alpine
         state: started
         volumes:
-          - test_volume:/avolume
+          - test_volume:/bin
         command: tail -f /dev/null
         ports:
           - "80:8000"

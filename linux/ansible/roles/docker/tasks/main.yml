@@ -10,13 +10,14 @@
       - "/var/run/docker.sock:/var/run/docker.sock"
     command: "--run-once {{ docker_update_containers | join(' ') }}"
 
-- name: Docker backup containers
+
+- name: Download gitignore
   become: true
-  when: docker_backup_containers | length > 0
+  when: docker_backup_containers | length > 0 or docker_backup_volumes | length > 0
   block:
-    - name: Assert version is defined
+    - name: Check if the backup version is set
       ansible.builtin.assert:
-        that: docker_backup_version is defined
+        that: docker_backup_version
         fail_msg: "Please set docker_backup_version"
     - name: Create .gitignore file
       become: true
@@ -35,6 +36,11 @@
         path: /tmp/gitignore
         state: absent
 
+
+- name: Docker backup containers
+  become: true
+  when: docker_backup_containers | length > 0
+  block:
     - name: Commit docker containers to images
       become: true
       ansible.builtin.command: "docker commit {{ item }} {{ item }}:{{ docker_backup_version }}"
@@ -48,7 +54,7 @@
     - name: Fetch the docker images
       ansible.builtin.fetch:
         src: "/{{ item }}.tar.gz"
-        dest: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/{{ docker_backup_version }}/{{ item }}.tar.gz"
+        dest: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/{{ docker_backup_version }}/containers/{{ item }}.tar.gz"
         flat: true
       loop: "{{ docker_backup_containers }}"
     - name: Delete docker images from server
@@ -69,7 +75,7 @@
     - name: Docker download compose files
       ansible.builtin.fetch:
         src: "/{{ item }}.yml"
-        dest: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/{{ docker_backup_version }}/{{ item }}.yml"
+        dest: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/{{ docker_backup_version }}/compose/{{ item }}.yml"
         flat: true
       loop: "{{ docker_backup_containers }}"
     - name: Delete docker compose files from server
@@ -82,10 +88,26 @@
   become: true
   when: docker_backup_volumes | length > 0
   block:
-    - name: Assert version is defined
-      ansible.builtin.assert:
-        that: docker_backup_version is defined
-        fail_msg: "Please set docker_backup_version"
+    - name: Export docker volumes 
+      community.docker.docker_container:
+        name: backups
+        image: docker.io/alpine
+        volumes:
+          - "{{ item }}:/volume"
+          - "/:/hostroot"
+        command: "tar -czvf /hostroot/{{ item }}.tar.gz /volume"
+      loop: "{{ docker_backup_volumes }}"
+    - name: Fetch docker volume targzs
+      ansible.builtin.fetch:
+        src: "/{{ item }}.tar.gz"
+        dest: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/{{ docker_backup_version }}/volumes/{{ item }}.tar.gz"
+        flat: true
+      loop: "{{ docker_backup_volumes }}"
+    - name: Delete docker volumes from server
+      ansible.builtin.file:
+        path: "/{{ item }}.tar.gz"
+        state: absent
+      loop: "{{ docker_backup_volumes }}"
 
 - name: Docker restore containers
   become: true
@@ -98,7 +120,7 @@
     - name: Copy image to server
       ansible.builtin.copy:
         remote_src: false
-        src: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/{{ docker_backup_version }}/{{ item }}.tar.gz"
+        src: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/{{ docker_backup_version }}/containers/{{ item }}.tar.gz"
         dest: "/{{ item }}.tar.gz"
         mode: '0644'
       loop: "{{ docker_restore_containers }}"
@@ -118,7 +140,7 @@
       loop: "{{ docker_restore_containers  }}"
     - name: Copy docker-compose files to remote server
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/{{ docker_backup_version }}/{{ item }}.yml"
+        src: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/{{ docker_backup_version }}/compose/{{ item }}.yml"
         dest: "/opt/ccdc/compose/{{ docker_backup_version }}/{{ item }}/docker-compose.yml"
         mode: '0644'
       loop: "{{ docker_restore_containers }}"
