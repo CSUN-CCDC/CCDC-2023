@@ -1,3 +1,3 @@
 nix_install: false # Whether or not to install nix
 
-nix_install_python: false
+nix_python: false # Creates a python environment for ansible to run from. 

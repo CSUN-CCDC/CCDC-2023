@@ -22,7 +22,7 @@
         mode: '755'
       when: nix_installed.rc != 0
     - name: Install Nix
-      ansible.builtin.command: "/bin/nix-installer install linux --init none --no-confirm"
+      ansible.builtin.command: "/bin/nix-installer install linux {{ '' if ansible_facts['ansible_service_mgr'] is 'systemd' else '--init none' }} --no-confirm"
       register: nix_install_result
       ignore_errors: true
       when: nix_installed.failed != false
@@ -37,3 +37,19 @@
       when: nix_install_result.failed == false  # Only run if Nix was successfully installed
 
 - name: Bundle python
+  become: false
+  when: nix_python is true
+  block:
+    - name: Copy shell.nix to server
+      ansible.builtin.copy:
+        src: "files/pythonenv.nix"
+        dest: "$HOME/nix/shell.nix"
+        mode: '0644'
+    - name: Generate python environment
+      ansible.builtin.command: "nix-shell --quiet"
+      args:
+        chdir: "$HOME/nix/"
+      register: nix_python_env_location
+    - name: Print python env location
+      ansible.builtin.debug:
+        msg: "A python env has been created at {{ nix_python_env_location.stdout }}"
