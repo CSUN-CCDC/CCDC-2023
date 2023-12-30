@@ -1,0 +1,16 @@
+postgres_user: postgres # User in the postgres database to connect as
+
+postgres_password: postgres # Password of the above user
+
+postgres_host: 127.0.0.1
+
+postgres_port: 5432
+
+postgres_passwords_shuffle: false # Shuffle all passwords on postgres and save a csv
+
+postgres_backup_version: # Backup version
+
+postgres_backup: false # Back up the db
+
+
+localhost: 127.0.0.1

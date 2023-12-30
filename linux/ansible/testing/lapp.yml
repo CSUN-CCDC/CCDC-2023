@@ -1,0 +1,15 @@
+---
+- name: Playbook for testing webserver related roles
+  hosts: all
+
+  roles:
+    - role: "../roles/facts"
+    # - role: "../roles/httpd"
+    #   vars:
+    #     httpd_scan_webshells: true
+    #     httpd_scan_directories: ["/var/www/html","/etc/sudoers.d"]
+    - role: "../roles/postgres"
+      vars:
+        postgres_user: homestead
+        postgres_password: secret
+        postgres_shuffle_passwords: true

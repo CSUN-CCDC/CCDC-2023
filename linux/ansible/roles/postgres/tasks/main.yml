@@ -1,0 +1,44 @@
+---
+
+- name: Download gitignore
+  when: postgres_shuffle_passwords is true or postgres_backup is true
+  become: true
+  block:
+    - name: Assert that postgres_backup_version is set
+      ansible.builtin.assert:
+        that: postgres_backup_version
+        fail_msg: "Please set podman_backup_version"
+    - name: Create .gitignore file
+      become: true
+      ansible.builtin.template:
+        src: templates/gitignore.j2
+        dest: /tmp/gitignore
+        mode: '0644'
+    - name: Fetch gitignore
+      ansible.builtin.fetch:
+        src: /tmp/gitignore
+        dest: "{{ playbook_dir }}/postgres/.gitignore"
+        flat: true
+    - name: Delete gitignore
+      become: true
+      ansible.builtin.file:
+        path: /tmp/.gitignore
+        state: absent
+
+- name: Shuffle postgres passwords
+  become: "{{ inventory_hostname != localhost }}"
+  when: postgres_shuffle_passwords is true
+  block:
+    - name: Collect tablespaces and repl_slots info
+      become: true
+      become_user: "{{ postgres_user }}"
+      community.postgresql.postgresql_info:
+        login_host: "{{ postgres_host }}"
+        login_user: "{{ postgres_user }}"
+        login_password: "{{ postgres_password }}"
+        login_port: "{{ postgres_port }}"
+      register: db_info
+    - name: Debug, print postgres user list
+      ansible.builtin.debug:
+        msg: "{{ db_info.roles }}"
+        # Users are just roles with the "login" attribute, similar to how unix human users get shells.
