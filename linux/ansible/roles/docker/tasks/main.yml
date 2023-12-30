@@ -54,7 +54,7 @@
     - name: Fetch the docker images
       ansible.builtin.fetch:
         src: "/{{ item }}.tar.gz"
-        dest: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/{{ docker_backup_version }}/containers/{{ item }}.tar.gz"
+        dest: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/containers/{{ item }}-{{ docker_backup_version }}.tar.gz"
         flat: true
       loop: "{{ docker_backup_containers }}"
     - name: Delete docker images from server
@@ -75,7 +75,7 @@
     - name: Docker download compose files
       ansible.builtin.fetch:
         src: "/{{ item }}.yml"
-        dest: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/{{ docker_backup_version }}/compose/{{ item }}.yml"
+        dest: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/compose/{{ item }}-{{ docker_backup_version }}.yml"
         flat: true
       loop: "{{ docker_backup_containers }}"
     - name: Delete docker compose files from server
@@ -88,19 +88,19 @@
   become: true
   when: docker_backup_volumes | length > 0
   block:
-    - name: Export docker volumes 
+    - name: Export docker volumes
       community.docker.docker_container:
         name: backups
-        image: docker.io/alpine
+        image: docker.io/busybox
         volumes:
           - "{{ item }}:/volume"
           - "/:/hostroot"
-        command: "tar -czvf /hostroot/{{ item }}.tar.gz /volume"
+        command: "tar -czvf /hostroot/{{ item }}.tar.gz /volume/"
       loop: "{{ docker_backup_volumes }}"
     - name: Fetch docker volume targzs
       ansible.builtin.fetch:
         src: "/{{ item }}.tar.gz"
-        dest: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/{{ docker_backup_version }}/volumes/{{ item }}.tar.gz"
+        dest: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/volumes/{{ item }}-{{ docker_backup_version }}.tar.gz"
         flat: true
       loop: "{{ docker_backup_volumes }}"
     - name: Delete docker volumes from server
@@ -109,18 +109,54 @@
         state: absent
       loop: "{{ docker_backup_volumes }}"
 
+- name: Docker restore volumes
+  become: true
+  when: docker_restore_volumes | length > 0
+  block:
+    - name: Assert version is defined
+      ansible.builtin.assert:
+        that: docker_backup_version
+        fail_msg: "Please set docker_backup_version"
+    - name: Copy docker volumes to server
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/volumes/{{ item }}-{{ docker_backup_version }}.tar.gz"
+        dest: "/{{ item }}.tar.gz"
+        mode: '0644'
+      loop: "{{ docker_restore_volumes }}"
+    - name: Import docker volumes
+      community.docker.docker_volume:
+        name: "{{ item }}"
+        state: present
+        # recreate: always # Fails while volume is in use.
+      loop: "{{ docker_restore_volumes }}"
+    - name: Import data into the docker volumes
+      community.docker.docker_container:
+        name: backups
+        image: docker.io/busybox
+        volumes:
+          - "{{ item }}:/volume"
+          - "/:/hostroot"
+        command: "tar -xzvf /hostroot/{{ item }}.tar.gz --directory /"
+      loop: "{{ docker_restore_volumes }}"
+    - name: Loop and delete volume targz's from servers
+      ansible.builtin.file:
+        path: "/{{ item }}.tar.gz"
+        state: absent
+      loop: "{{ docker_restore_volumes }}"
+
+
 - name: Docker restore containers
   become: true
   when: docker_restore_containers | length > 0
   block:
     - name: Assert version is defined
       ansible.builtin.assert:
-        that: docker_backup_version is defined
+        that: docker_backup_version
         fail_msg: "Please set docker_backup_version"
     - name: Copy image to server
       ansible.builtin.copy:
         remote_src: false
-        src: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/{{ docker_backup_version }}/containers/{{ item }}.tar.gz"
+        src: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/containers/{{ item }}-{{ docker_backup_version }}.tar.gz"
         dest: "/{{ item }}.tar.gz"
         mode: '0644'
       loop: "{{ docker_restore_containers }}"
@@ -137,10 +173,10 @@
       ansible.builtin.file:
         path: "/opt/ccdc/compose/{{ docker_backup_version }}/{{ item }}/"
         state: directory
-      loop: "{{ docker_restore_containers  }}"
+      loop: "{{ docker_restore_containers }}"
     - name: Copy docker-compose files to remote server
       ansible.builtin.copy:
-        src: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/{{ docker_backup_version }}/compose/{{ item }}.yml"
+        src: "{{ playbook_dir }}/docker/{{ inventory_hostname }}/compose/{{ item }}-{{ docker_backup_version }}.yml"
         dest: "/opt/ccdc/compose/{{ docker_backup_version }}/{{ item }}/docker-compose.yml"
         mode: '0644'
       loop: "{{ docker_restore_containers }}"

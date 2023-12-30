@@ -53,11 +53,18 @@
         enabled: true
         state: started
         scope: user
+    - name: Create volume for podman
+      become_user: podmaner
+      containers.podman.podman_volume:
+        name: "test_volume"
+        state: present
     - name: Start alpine podman container under podmaner user
       become_user: podmaner
       containers.podman.podman_container:
         name: alpine_container
         image: docker.io/alpine
+        volume:
+          - "test_volume:/lib"
         command: "tail -f /dev/null"
 
 

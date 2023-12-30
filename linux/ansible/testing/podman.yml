@@ -8,5 +8,9 @@
       vars:
         podman_backup_version: fresh
         podman_user: podmaner
-        podman_backup_containers: 
-         - alpine_container
+        # podman_backup_volumes:
+        #   - test_volume
+        # podman_backup_containers: 
+        #  - alpine_container
+        podman_restore_volumes:
+          - test_volume

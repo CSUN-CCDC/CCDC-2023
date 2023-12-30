@@ -1,11 +1,12 @@
 ---
-- name: Backup podman containers
-  when: podman_backup_containers | length > 0
+
+- name: Download gitignore
+  when: podman_backup_containers | length > 0 or podman_backup_volumes | length > 0
   become: true
   block:
     - name: Assert that podman_backup_version is set
       ansible.builtin.assert:
-        that: podman_backup_version is defined
+        that: podman_backup_version
         fail_msg: "Please set podman_backup_version"
     - name: Create .gitignore file
       become: true
@@ -23,6 +24,15 @@
       ansible.builtin.file:
         path: /tmp/.gitignore
         state: absent
+
+- name: Backup podman containers
+  when: podman_backup_containers | length > 0
+  become: true
+  block:
+    - name: Assert that podman_backup_version is set
+      ansible.builtin.assert:
+        that: podman_backup_version
+        fail_msg: "Please set podman_backup_version"
     - name: Commit podman containers
       become: true
       become_user: "{{ podman_user }}"
@@ -48,3 +58,75 @@
         path: "$HOME/{{ item }}.tar.gz"
         state: absent
       loop: "{{ podman_backup_containers }}"
+
+- name: Podman backup volumes
+  when: podman_backup_volumes | length > 0
+  become: true
+  block:
+    - name: Podman export volumes to tar files
+      become: true
+      become_user: "{{ podman_user }}"
+      ansible.builtin.command: "podman volume export {{ item }} --output $HOME/{{ item }}.tar"
+      changed_when: true
+      loop: "{{ podman_backup_volumes }}"
+    - name: Download volumes as tar files
+      become: true
+      become_user: "{{ podman_user }}"
+      ansible.builtin.fetch:
+        src: "$HOME/{{ item }}.tar"
+        dest: "{{ playbook_dir }}/podman/{{ inventory_hostname }}/volumes/{{ item }}-{{ podman_backup_version }}.tar"
+        flat: true
+      loop: "{{ podman_backup_volumes }}"
+    - name: Delete tar files from homedir
+      become: true
+      become_user: "{{ podman_user }}"
+      ansible.builtin.file:
+        path: "$HOME/{{ item }}.tar"
+        state: absent
+      loop: "{{ podman_backup_volumes }}"
+
+- name: Restore podman volumes
+  become: true
+  when: podman_restore_volumes | length > 0
+  block:
+    - name: Assert that podman_backup_version is set
+      ansible.builtin.assert:
+        that: podman_backup_version
+        fail_msg: "Please set podman_backup_version"
+    - name: Podman upload volumes
+      become: true
+      become_user: "{{ podman_user }}"
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/podman/{{ inventory_hostname }}/volumes/{{ item }}-{{ podman_backup_version }}.tar"
+        dest: "$HOME/{{ item }}.tar"
+        mode: '0644'
+      loop: "{{ podman_restore_volumes }}"
+    - name: Ensure the volumes exist
+      become: true
+      become_user: "{{ podman_user }}"
+      containers.podman.podman_volume:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ podman_restore_volumes }}"
+    - name: Import the podman volumes
+      become: true
+      become_user: "{{ podman_user }}"
+      ansible.builtin.command: "podman volume import {{ item }} $HOME/{{ item }}.tar"
+      changed_when: true
+      loop: "{{ podman_restore_volumes }}"
+    - name: Delete podman volumes from server
+      become: true
+      become_user: "{{ podman_user }}"
+      ansible.builtin.file:
+        path: "$HOME/{{ item }}.tar"
+        state: absent
+      loop: "{{ podman_restore_volumes }}"
+
+# - name: Restore podman containers images
+#   when: podman_restore_containers | length > 0
+#   become: true
+#   block:
+#     - name: Upload podman container images
+#       become: true
+#       become_user: "{{ podman_user }}"
+#       ansible.builtin.copy:
