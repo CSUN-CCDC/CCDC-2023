@@ -1,6 +1,10 @@
 ---
 - name: Playbook for testing webserver related roles
   hosts: all
+  gather_facts: true
+
+  # vars:
+  #   ansible_python_interpreter: "/nix/store/5mjysbgmg42z2fvdviz5792sxdn6zl5f-python3-3.11.6-env/bin/python"
 
   roles:
     - role: "../roles/facts"
@@ -8,6 +12,10 @@
     #   vars:
     #     httpd_scan_webshells: true
     #     httpd_scan_directories: ["/var/www/html","/etc/sudoers.d"]
+    # - role: "../roles/nix"
+    #   vars:
+    #     nix_install: true
+    #     nix_python: true
     - role: "../roles/postgres"
       vars:
         postgres_user: homestead

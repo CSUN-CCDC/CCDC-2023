@@ -13,4 +13,4 @@ postgres_backup_version: # Backup version
 postgres_backup: false # Back up the db
 
 
-localhost: 127.0.0.1
+postgres_localhost: 127.0.0.1

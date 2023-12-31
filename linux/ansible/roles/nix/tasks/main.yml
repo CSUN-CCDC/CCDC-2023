@@ -9,10 +9,6 @@
       ansible.builtin.shell: nix --version
       register: nix_installed
       ignore_errors: true
-    - name: Assert that nix is not installed
-      ansible.builtin.assert:
-        that: nix_installed.rc != 0
-        fail_msg: "Nix is already installed"
     - name: Download nix-installer
       ansible.builtin.get_url:
         url: https://github.com/DeterminateSystems/nix-installer/releases/download/v0.14.0/nix-installer-x86_64-linux
@@ -20,9 +16,9 @@
         owner: root
         group: root
         mode: '755'
-      when: nix_installed.rc != 0
+      when: nix_installed.failed != false
     - name: Install Nix
-      ansible.builtin.command: "/bin/nix-installer install linux {{ '' if ansible_facts['ansible_service_mgr'] is 'systemd' else '--init none' }} --no-confirm"
+      ansible.builtin.command: "/bin/nix-installer install linux {{ '' if service_manager == 'systemd' else '--init none' }} --no-confirm"
       register: nix_install_result
       ignore_errors: true
       when: nix_installed.failed != false
@@ -30,11 +26,11 @@
 #   shell: "curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install linux --init none --no-confirm"
 #   register: nix_install_result
 #   ignore_errors: yes  # Allow this command to fail if Nix is already installed
-    - name: Add nixpkgs-unstable channel and update
-      ansible.builtin.shell: "source /etc/profile && nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs && nix-channel --update"
-      args:
-        executable: '/bin/bash'
-      when: nix_install_result.failed == false  # Only run if Nix was successfully installed
+    # - name: Add nixpkgs-unstable channel and update
+    #   ansible.builtin.shell: "source /etc/profile && nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs && nix-channel --update"
+    #   args:
+    #     executable: '/bin/bash'
+    #   when: nix_install_result.failed == false  # Only run if Nix was successfully installed
 
 - name: Bundle python
   become: false
@@ -43,12 +39,12 @@
     - name: Copy shell.nix to server
       ansible.builtin.copy:
         src: "files/pythonenv.nix"
-        dest: "$HOME/nix/shell.nix"
+        dest: "$HOME/shell.nix"
         mode: '0644'
     - name: Generate python environment
       ansible.builtin.command: "nix-shell --quiet"
       args:
-        chdir: "$HOME/nix/"
+        chdir: "$HOME/"
       register: nix_python_env_location
     - name: Print python env location
       ansible.builtin.debug:
