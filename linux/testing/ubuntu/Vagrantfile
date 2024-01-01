@@ -74,8 +74,40 @@ Vagrant.configure("2") do |config|
         vmconfig.vm.provider "virtualbox" do |virtualbox,override|
             virtualbox.memory = 2048
             virtualbox.cpus = 1
-            #override.vm.network "private_network", ip: "192.168.56.4"
         end
-        
+    end
+
+    config.vm.define "mern" do |vmconfig|
+
+        vmconfig.vm.provision "ansible" do |ansible|
+            ansible.playbook = "playbooks/mern.yml"
+            ansible.compatibility_mode = "2.0"
+        end
+        vmconfig.vm.box = "techchad2022/mern"
+        # MERN stack - Mongodb, engine-x (nginx), react, nodejs
+        # Ubuntu 22.04
+        # mongo username: admin password: Password123!
+        # Unable to authenticate for some reason
+        vmconfig.vm.provider "virtualbox" do |virtualbox|
+            virtualbox.memory = 2048
+            virtualbox.cpus = 1
+        end
+    end
+
+    config.vm.define "fullstack" do |vmconfig|
+
+        vmconfig.vm.provision "ansible" do |ansible|
+            ansible.playbook = "playbooks/fullstack.yml"
+            ansible.compatibility_mode = "2.0"
+        end
+        vmconfig.vm.box = "aracpac/ubuntu22"
+        # https://app.vagrantup.com/aracpac/boxes/ubuntu22
+        # Fullstack environment
+        # mysql user: root password: root
+        # mongo ???
+        vmconfig.vm.provider "virtualbox" do |virtualbox|
+            virtualbox.memory = 2048
+            virtualbox.cpus = 1
+        end
     end
 end

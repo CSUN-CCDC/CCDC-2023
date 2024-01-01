@@ -1,0 +1,95 @@
+---
+
+- name: Download gitignore
+  when: mongo_shuffle_passwords is true
+  become: true
+  block:
+    # - name: Assert that mongo_backup_version is set
+    #   ansible.builtin.assert:
+    #     that: mongo_backup_version
+    #     fail_msg: "Please set mongo_backup_version"
+    - name: Create .gitignore file
+      become: true
+      ansible.builtin.template:
+        src: templates/gitignore.j2
+        dest: /tmp/gitignore
+        mode: '0644'
+    - name: Fetch gitignore
+      ansible.builtin.fetch:
+        src: /tmp/gitignore
+        dest: "{{ playbook_dir }}/mongo/.gitignore"
+        flat: true
+    - name: Delete gitignore
+      become: true
+      ansible.builtin.file:
+        path: /tmp/.gitignore
+        state: absent
+
+- name: Shuffle mongo passwords
+  become: "{{ mongo_host == mongo_localhost }}"
+  when: mongo_shuffle_passwords is true
+  block:
+    - name: Get list of users in the database
+      community.mongodb.mongodb_info:
+        login_host: "{{ mongo_host }}"
+        login_user: "{{ mongo_user }}"
+        login_password: "{{ mongo_password }}"
+        login_port: "{{ mongo_port }}"
+      register: db_info
+
+    - name: Debug, print mongo user list
+      ansible.builtin.debug:
+        # Users are just roles with the "login" attribute, similar to how unix human users get shells.
+        # So it doesn't matter if we change the password of every
+        msg: "{{ db_info.users }}"
+    
+    - name: Pause
+      ansible.builtin.pause:
+
+    - name: Print dictionary items
+      ansible.builtin.debug:
+        msg: "{{ db_info.roles | dict2items }}"
+    - name: Create random location for passwords csv
+      ansible.builtin.set_fact:
+        mongopasswords: "{{ lookup('community.general.random_string', length=12, special=false) }}"
+    - name: Create scoring engine CSV
+      ansible.builtin.file:
+        dest: "/tmp/{{ mongopasswords }}"
+        mode: '0644'
+        state: touch
+
+    - name: pause the play
+      ansible.builtin.pause:
+      
+
+    - name: Shuffle passwords
+      ansible.builtin.include_tasks:
+        file: tasks/shuffle_passwords.yml
+      loop: "{{ db_info.users | dict2items }}"
+      when: "{{ item.key != mongo_user }}"
+    - name: Generate password for {{ mongo_user }}
+      ansible.builtin.set_fact:
+        new_password: "{{ lookup('community.general.random_string', length=12, special=false) }}"
+  
+
+    - name: Change mongo password for {{ mongo_user }}
+      community.mongodb.mongodb_user:
+        login_host: "{{ mongo_host }}"
+        login_user: "{{ mongo_user }}"
+        login_password: "{{ mongo_password }}"
+        login_port: "{{ mongo_port }}"
+        user: "{{ mongo_user }}"
+        password: "{{ new_password }}"
+    - name: Edit csv with password of {{ mongo_user }}
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ mongopasswords }}"
+        line: "{{ mongo_user }},{{ new_password }}"
+    - name: Download password csv
+      ansible.builtin.fetch:
+        src: "/tmp/{{ mongopasswords }}"
+        dest: "{{ playbook_dir }}/mongo/{{ inventory_hostname if mongo_host == mongo_localhost else mongo_host }}.csv"
+        flat: true
+    - name: Delete password csv
+      ansible.builtin.file:
+        path: "/tmp/{{ mongopasswords }}"
+        state: absent

@@ -1,0 +1,14 @@
+---
+- name: Provision VM
+  become: true  # If you need to run tasks with elevated privileges, such as sudo
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Set username and password
+      ansible.builtin.user:
+        name: "{{ item }}"
+        password: "{{ 'vagrant' | password_hash('sha512') }}"
+      loop:
+        - "root"
+        - "vagrant"

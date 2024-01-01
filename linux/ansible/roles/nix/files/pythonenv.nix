@@ -9,6 +9,7 @@ let
     psycopg2
     requests
     pyopenssl
+    pymongo
     # other python packages
 
   ];
