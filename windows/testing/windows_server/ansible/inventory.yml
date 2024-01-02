@@ -1,0 +1,4 @@
+---
+- name: Create ansible inventory
+  hosts: all
+  gather_facts: true

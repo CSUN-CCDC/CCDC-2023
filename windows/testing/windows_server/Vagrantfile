@@ -1,0 +1,58 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+    #config.vm.synced_folder ".", "/vagrant", disabled: true
+    config.vm.communicator = "winrm"
+    config.winrm.transport = :ssl
+    config.winrm.host = "127.0.0.1"
+    config.winrm.port = 55986
+    config.winrm.ssl_peer_verification = false
+    #config.winrm.basic_auth_only = true
+
+    config.vm.define "dc" do |vmconfig|
+
+        
+        vmconfig.vm.provision "ansible" do |ansible|
+            ansible.playbook = "ansible/inventory.yml"
+            ansible.compatibility_mode = "2.0"
+        end
+        vmconfig.vm.box = "cdaf/WindowsServerDC"
+        vmconfig.vm.provider "virtualbox" do |virtualbox|
+            virtualbox.memory = 3000
+            virtualbox.cpus = 2
+        end
+
+        #vmconfig.vm.network "private_network", type: "dhcp", virtualbox__intnet: true
+    end
+
+    config.vm.define "dc2" do |vmconfig|
+        vmconfig.vm.provision "ansible" do |ansible|
+            ansible.playbook = "ansible/inventory.yml"
+            ansible.compatibility_mode = "2.0"
+        end
+        vmconfig.vm.box = "royce/capsulecorp-goku"
+        vmconfig.vm.provider "virtualbox" do |virtualbox|
+            virtualbox.memory = 3000
+            virtualbox.cpus = 2
+        end
+
+        #vmconfig.vm.network "private_network", type: "dhcp", virtualbox__intnet: true
+    end
+    config.vm.define "22dc" do |vmconfig|
+        vmconfig.vm.provision "ansible" do |ansible|
+            ansible.playbook = "ansible/inventory.yml"
+            ansible.compatibility_mode = "2.0"
+        end
+        vmconfig.vm.box = "dstoliker/winserver2022-dc"
+        vmconfig.vm.provider "virtualbox" do |virtualbox|
+            virtualbox.memory = 3000
+            virtualbox.cpus = 2
+        end
+
+        #vmconfig.vm.network "private_network", type: "dhcp", virtualbox__intnet: true
+    end
+
+
+end
