@@ -1,0 +1,53 @@
+---
+- name: Shuffle windows passwords
+  # become: true
+  # become: "{{ ansible_user }}"
+  when: domain_passwords_shuffle is true
+  block:
+    - name: Print ansible_user
+      ansible.builtin.debug:
+        var: ansible_user
+    - name: Create random location for passwords csv
+      ansible.builtin.set_fact:
+        adpasswordfile_suffix: "{{ lookup('community.general.random_string', length=12, special=false) }}"
+    - name: Create passwords file
+      ansible.windows.win_tempfile:
+        suffix: "{{ adpasswordfile_suffix }}"
+        state: file
+      register: adpasswordfile
+    - name: Get the SID for all user accounts as a filter
+      microsoft.ad.object_info:
+        filter: ObjectClass -eq 'user' -and objectCategory -eq 'Person'
+        properties:
+        - objectSid
+      register: ad_users
+    - name: Shuffle through users and change their password
+      ansible.builtin.include_tasks:
+        file: tasks/shuffle_passwords.yml
+      when: "{{ item.Name != ansible_user }}"
+      loop: "{{ ad_users.objects }}"
+
+    - name: Generate password of {{ ansible_user }}
+      when: domain_admin_password is not defined
+      ansible.builtin.set_fact:
+        domain_admin_password: "{{ lookup('community.general.random_string', length=12, special=false) }}"
+
+    - name: Export password of {{ ansible_user }}
+      ansible.builtin.win_lineinfile:
+        path: "{{ adpasswordfile.path }}"
+        line: "{{ ansible_user }},{{ domain_admin_password }}"
+
+    - name: Fetch adpassworsd
+      ansible.builtin.fetch:
+        src: "{{ adpasswordfile.path }}"
+        dest: "{{ playbook_dir }}/domains/{{ inventory_hostname if inventory_hostname in domain_localhost else ansible_facts['nodename'] }}.csv"
+        flat: true
+    - name: Delete passwords file
+      ansible.windows.win_file:
+        path: "{{ adpasswordfile.path }}"
+        state: absent
+    - name: Change password of {{ ansible_user }}
+      microsoft.ad.user:
+        name: "{{ ansible_user }}"
+        #identity: "{{ item.ObjectGUID }}" # What if two domain users have the same name?
+        password: "{{ domain_admin_password }}"

@@ -1,0 +1,6 @@
+domain_passwords_shuffle: false # Shuffle active directory users and get a domain
+
+domain_admin_password: # String, set password of the user you are provisioning the machine as
+
+
+domain_localhost: [127.0.0.1, localhost]

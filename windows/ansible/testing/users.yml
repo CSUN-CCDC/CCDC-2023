@@ -1,0 +1,12 @@
+---
+- name: Windows shuffle users passwords
+  hosts: all
+  vars:
+    ansible_winrm_scheme: "http"
+    stdout_callback: "yaml"
+  roles:
+    #- role: "../roles/facts"
+    - role: "../roles/domain"
+      vars:
+        domain_passwords_shuffle: true
+        domain_admin_password: "notvagrant1!"
