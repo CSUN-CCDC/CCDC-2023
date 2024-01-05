@@ -1,5 +1,11 @@
 ufw_lockdown: false # boolean, locks down ufw to only allow connections from your ip address
 
-ufw_source_ips: [] # List of ip addresses to accept all connections from. 
+ufw_source_ips: [] # List of ip addresses to accept all connections from.
 
-ufw_open_ports: [] # List (litarally an ansible list) E.g: [80, 443].
+# List (litarally an ansible list) of ports to open E.g: [80, 443].
+# Also supports shortnames/aliases for ports based on services. E.g: [ssh, http]. name-port associations can be found in /etc/services
+ufw_open_ports: []
+
+# Custom ufw application profiles to enable. Valid parameters are the sections of ini files in /etc/ufw/applications.d
+# Parameters of each section determine the firewall parameters.
+ufw_apps: []

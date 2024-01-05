@@ -5,11 +5,13 @@ let
   my-python-packages = ps: with ps; [
     #dnspython
     #jmespath
+    sqlalchemy
     mysqlclient
     psycopg2
     requests
     pyopenssl
     pymongo
+    #pywinrm
     # other python packages
 
   ];

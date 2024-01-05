@@ -6,5 +6,7 @@ firewalld_source_ips: [] # ip addresses from which to accept ANY connections.
 firewalld_open_ports: [] # List of port/protocol, in THAT EXACT FORMAT, to open. E.g: ['8081/tcp','72/udp']
 
 # List of services to enable via firewalld.
-# See: https://wiki.archlinux.org/title/Firewalld#Services for definitions
+# See https://wiki.archlinux.org/title/Firewalld#Services for docs
+# See firewall-cmd --get-services for a list of services
+# firewall-cmd --info-service servicename
 firewalld_services: []

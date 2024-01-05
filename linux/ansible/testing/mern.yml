@@ -12,12 +12,12 @@
     #   vars:
     #     httpd_scan_webshells: true
     #     httpd_scan_directories: ["/var/www/html","/etc/sudoers.d"]
-    # - role: "../roles/nix"
-    #   vars:
-    #     nix_install: true
-    #     nix_python: true
-    - role: "../roles/mongo"
+    - role: "../roles/nix"
       vars:
-        mongo_user: "admin"
-        mongo_password: "Password123!"
-        mongo_shuffle_passwords: true
+        nix_install: true
+        nix_python: true
+    # - role: "../roles/mongo"
+    #   vars:
+    #     mongo_user: "admin"
+    #     mongo_password: "Password123!"
+    #     mongo_shuffle_passwords: true

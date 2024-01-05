@@ -14,8 +14,15 @@
       ansible.posix.firewalld:
         zone: public
         state: enabled
-        immediate: true
+        target: "ACCEPT"
         permanent: true
+    - name: Restart firewalld
+      ansible.builtin.service:
+        name: firewalld
+        state: restarted
+    - name: Set public as default zone
+      ansible.builtin.command: "firewall-cmd --set-default-zone=public"
+      changed_when: true
     - name: Print control node ip address
       ansible.builtin.debug:
         var: control_node_ip
@@ -48,6 +55,12 @@
         state: disabled
         permanent: true
       loop: "{{ firewalld_ports.stdout.split(' ') }}"
+    - name: Set firewalld default zone to public and target to drop
+      ansible.posix.firewalld:
+        zone: public
+        state: enabled
+        target: "DROP"
+        permanent: true
     - name: Reload firewalld service
       ansible.builtin.service:
         name: firewalld

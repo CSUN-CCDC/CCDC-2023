@@ -12,7 +12,14 @@
       ansible.builtin.debug:
         var: control_node_ip
     # Follow ufw from here: https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html
-    - name: Reset UFW
+    - name: Set iptables INPUT policy accept
+      ansible.builtin.iptables:
+        chain: INPUT
+        policy: ACCEPT
+    - name: Disable ufw
+      community.general.ufw:
+        state: disabled
+    - name: Reset UFW # If ssh doesn't support controlpersist, then this will lock us out. 
       community.general.ufw:
         state: reset
     - name: Ufw allow outgoing
@@ -43,7 +50,7 @@
       loop: "{{ ufw_source_ips }}"
     - name: Reload ufw
       community.general.ufw:
-        state: enabled
+        state: reloaded
 
 - name: Ufw open ports
   become: true
@@ -54,5 +61,20 @@
         rule: allow
         port: "{{ item }}"
         state: enabled
-      with_items: "{{ ufw_open_ports }}"
+      loop: "{{ ufw_open_ports }}"
+    - name: Reload ufw
+      community.general.ufw:
+        state: reloaded
 
+- name: Ufw open apps
+  become: true
+  when: ufw_apps | length > 0
+  block:
+    - name: Loop through and open ufw apps
+      community.general.ufw:
+        name: "{{ item }}"
+        rule: allow
+      loop: "{{ ufw_apps }}"
+    - name: Reload ufw
+      community.general.ufw:
+        state: reloaded
