@@ -1,0 +1,10 @@
+---
+- name: Shuffle windows users passwords
+  when: ntlm_shuffle_passwords is true
+  block:
+    - name: Get windows list of users
+      win_shell: Get-WmiObject Win32_UserAccount | Select-Object Name
+      register: user_list
+    - name: Display user list
+      ansible.builtin.debug:
+        var: user_list

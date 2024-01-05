@@ -1,9 +1,16 @@
 ---
+
+
 - name: Shuffle windows passwords
   # become: true
   # become: "{{ ansible_user }}"
   when: domain_passwords_shuffle is true
   block:
+    - name: Disable password complexity
+      community.windows.win_security_policy:
+        section: "System Access"
+        key: "PasswordComplexity"
+        value: 0
     - name: Print ansible_user
       ansible.builtin.debug:
         var: ansible_user
