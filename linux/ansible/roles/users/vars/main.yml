@@ -3,3 +3,5 @@ users_passwords_shuffle: false # boolean, if defined, will shuffle all passwords
 users_passwords_hash: 'sha512' # String, sets the password hashing algorithm to be used. Some older OS may not be compatible with a newer hasing algorithm.
 
 users_admins: [] # List of strings, of which users should be part of the docker/sudo/wheel groups. Requires the "groups" command.
+
+users_admin_password: "" # String, sets the password ansible_user, the user you are connecting to the machine as

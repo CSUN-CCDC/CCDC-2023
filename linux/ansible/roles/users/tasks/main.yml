@@ -48,7 +48,16 @@
     - name: Loop through users, change passwords
       ansible.builtin.include_tasks:
         file: tasks/change_passwords.yml
+      when: "{{ item != ansible_user }}"
       loop: "{{ passwd.ansible_facts.getent_passwd | dict2items | map(attribute='key') | list }}"
+
+    - name: Generate password for {{ ansible_user }}
+      ansible.builtin.set_fact:
+        # Specials is false here to ensure maximum compatibility with scoring engine.
+        users_admin_password: "{{ lookup('community.general.random_string', length=12, special=false) }}"
+      when: users_admin_password
+
+    - name: Export password of {{ ansible_user }}
     - name: Fetch passwordlist
       ansible.builtin.fetch:
         src: "/tmp/{{ passwordlistfile }}"
@@ -58,8 +67,12 @@
       ansible.builtin.file:
         path: "/tmp/{{ passwordlistfile }}"
         state: absent
+    - name: Change password for {{ ansible_user }}
+      ansible.builtin.user:
+        name: "{{ item }}"
+        password: "{{ users_admin_password | password_hash(users_passwords_hash) }}"
 
-- name: Control who is admin version 2
+- name: Control who is equivalent to admin
   when: users_admins | length > 0 # Checks if list is non-empty
   become: true
   block:

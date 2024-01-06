@@ -35,7 +35,7 @@
       loop: "{{ ad_users.objects }}"
 
     - name: Generate password of {{ ansible_user }}
-      when: domain_admin_password is not defined
+      when: domain_admin_password 
       ansible.builtin.set_fact:
         domain_admin_password: "{{ lookup('community.general.random_string', length=12, special=false) }}"
 

@@ -1,4 +1,4 @@
-backup_version: # A very simple version control. String, sets what "version" of the backups to operate on.
+backup_version: "" # A very simple version control. String, sets what "version" of the backups to operate on.
 
 # List, literary comma seperated, python style list, of directories to backup in quotes. E.g: ["/var/www/html", "/etc"].
 backup_directories: []

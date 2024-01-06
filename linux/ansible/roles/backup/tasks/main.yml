@@ -10,7 +10,7 @@
   block:
     - name: Check if backup_version is set
       ansible.builtin.assert:
-        that: backup_version is defined
+        that: backup_version
         fail_msg: "Please set the backup_version variable for this role"
     - name: Ensure trailing slash is used
       ansible.builtin.assert:
@@ -46,7 +46,7 @@
 
     - name: Create archive of declared directories
       become: true
-      when: backup_directories is defined
+      when: backup_directories
       community.general.archive:
         path: "{{ item }}"
         dest: "/{{ item | replace('/', '_d_') }}.tar.gz"
@@ -73,7 +73,7 @@
   block:
     - name: Check if backup_version is set
       ansible.builtin.assert:
-        that: backup_version is defined
+        that: backup_version
         fail_msg: "Please set the backup_version variable for this role"
     - name: Ensure trailing slash is used
       ansible.builtin.assert:
