@@ -24,7 +24,7 @@
   block:
     - name: Check that mysql_backup_version is set
       ansible.builtin.assert:
-        that: mysql_backup_version is defined
+        that: mysql_backup_version
         fail_msg: "Please set mysql_backup_version"
     - name: Dump MySQL database
       community.mysql.mysql_db:

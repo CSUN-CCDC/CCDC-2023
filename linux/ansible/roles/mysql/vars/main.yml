@@ -1,6 +1,6 @@
-mysql_backup_version: # Backup version
+mysql_backup_version: "" # Backup version, string
 
-mysql_backup: false # String of database names
+mysql_backup: false # Set to true to backup, but don't bother with this. Stop the service and use the "backup" role to manage the mysql directory instead.
 
 
 mysql_user: "root" # User to log into the database of

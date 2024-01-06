@@ -23,14 +23,15 @@
     - role: "../roles/firewalld"
       vars:
         firewalld_lockdown: true
-        # firewalld_source_ips:
-        #   - 192.168.122.12
+        firewalld_source_ips:
+          - 192.168.122.12
+          - 8.8.8.8
         firewalld_services:
           - https
         firewalld_open_ports:
           - 8000/tcp
           - 80/tcp
-          - 53/udp
+          #- 53/udp
     # - role: "../roles/iptables"
     #   vars:
     #     iptables_lockdown: true

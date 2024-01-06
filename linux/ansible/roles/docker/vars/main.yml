@@ -3,7 +3,7 @@ docker_update: false # whether or not to update docker containers
 docker_update_containers: [] # By default, watchtower updates all containers. This causes it to only update a few. This is a list
 
 
-docker_backup_version: # A simple version control, use a string.
+docker_backup_version: "" # A simple version control, use a string.
 docker_backup_containers: [] # String of containers to backup.
 
 docker_restore_containers: [] # List of docker containers, this will load their images in the format 'container:docker_backup_version'

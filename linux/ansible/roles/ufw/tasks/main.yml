@@ -6,8 +6,8 @@
   block:
     - name: Check if control_node_ip exists
       ansible.builtin.assert:
-        that: control_node_ip is defined
-        fail_msg: "Please run the facts role before running the firewall roles"
+        that: control_node_ip | default(False)
+        fail_msg: "Please run the facts roles before the firewall roles, to generate the control node ip address"
     - name: Print control node ip address
       ansible.builtin.debug:
         var: control_node_ip

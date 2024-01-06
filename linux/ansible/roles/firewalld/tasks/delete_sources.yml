@@ -1,0 +1,15 @@
+---
+- name: Get source ip's from zone {{ item }}
+  ansible.builtin.command: "firewall-cmd --zone={{ item }} --list-sources"
+  changed_when: false
+  register: zone_sources
+- name: Delete source ip's from zone
+  when: zone_sources.stdout | length > 0
+  ansible.posix.firewalld:
+    zone: "{{ item }}"
+    state: disabled
+    source: "{{ enabled_source_ip }}"
+    permanent: true
+  loop: "{{ zone_sources.stdout.split(' ') }}"
+  loop_control:
+    loop_var: enabled_source_ip

@@ -8,21 +8,30 @@
   block:
     - name: Check if control_node_ip exists
       ansible.builtin.assert:
-        that: control_node_ip is defined
-        fail_msg: "Please run the facts role before running the firewall roles"
+        that: control_node_ip | default(False)
+        fail_msg: "Please run the facts roles before the firewall roles, to generate the control node ip address"
     - name: Set firewalld active zone
       ansible.posix.firewalld:
         zone: public
         state: enabled
         target: "ACCEPT"
         permanent: true
+    - name: Set public as default zone
+      ansible.builtin.command: "firewall-cmd --set-default-zone=public"
+      changed_when: true
     - name: Restart firewalld
       ansible.builtin.service:
         name: firewalld
         state: restarted
-    - name: Set public as default zone
-      ansible.builtin.command: "firewall-cmd --set-default-zone=public"
-      changed_when: true
+    - name: Firewalld get zones
+      ansible.builtin.command: "firewall-cmd --get-zones"
+      changed_when: false
+      register: firewalld_zones
+    - name: Delete any preexisting source ip addresses
+      ansible.builtin.include_tasks:
+        file: tasks/delete_sources.yml
+      when: firewalld_zones.stdout | default('False')
+      loop: "{{ firewalld_zones.stdout.split(' ') }}"
     - name: Print control node ip address
       ansible.builtin.debug:
         var: control_node_ip
@@ -55,7 +64,13 @@
         state: disabled
         permanent: true
       loop: "{{ firewalld_ports.stdout.split(' ') }}"
-    - name: Set firewalld default zone to public and target to drop
+    - name: Set firewalld trusted zone target to accept
+      ansible.posix.firewalld:
+        zone: trusted
+        state: enabled
+        target: "ACCEPT"
+        permanent: true
+    - name: Set firewalld public zone target to drop
       ansible.posix.firewalld:
         zone: public
         state: enabled
