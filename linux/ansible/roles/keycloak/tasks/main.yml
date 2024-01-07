@@ -1,31 +1,27 @@
 ---
 # To get list of users?
 # From chatgpt
-- name: Get List of Keycloak Users
-  hosts: localhost
-  gather_facts: false
-  tasks:
-    - name: Retrieve Keycloak access token
-      uri:
-        url: "http://your-keycloak-server/auth/realms/your-realm/protocol/openid-connect/token"
-        method: POST
-        body_format: form-urlencoded
-        body:
-          username: "admin-user"
-          password: "admin-password"
-          grant_type: "password"
-          client_id: "admin-cli"
-      register: keycloak_token
+- name: Retrieve Keycloak access token
+  ansible.builtin.uri:
+    url: "{{ keycloak_tls }}://your-keycloak-server/auth/realms/{{ keycloak_realm }}/protocol/openid-connect/token"
+    method: POST
+    body_format: form-urlencoded
+    body:
+      username: "admin-user"
+      password: "admin-password"
+      grant_type: "password"
+      client_id: "admin-cli"
+  register: keycloak_token
 - name: Retrieve list of Keycloak users
-  uri:
-    url: "http://your-keycloak-server/auth/admin/realms/your-realm/users"
+  ansible.builtin.uri:
+    url: "{{ keycloak_tls }}://{{ keycloak_server }}/{{ keycloak_realm }}/users"
     method: GET
     headers:
       Authorization: "Bearer {{ keycloak_token.json.access_token }}"
   register: keycloak_users
 
 - name: Display Keycloak users
-  debug:
+  ansible.builtin.debug:
     var: keycloak_users.json
 
 

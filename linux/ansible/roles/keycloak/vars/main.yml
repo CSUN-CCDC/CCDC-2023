@@ -1,1 +1,8 @@
 ---
+
+keycloak_tls: "http" # Or https for when that is used
+
+keycloak_server: ""
+
+keycloak_realm: "master" # Realm of keycloak
+
