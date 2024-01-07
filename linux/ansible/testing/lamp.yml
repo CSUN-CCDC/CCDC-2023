@@ -1,17 +1,17 @@
 ---
 - name: Playbook for testing webserver related roles
-  hosts: all
+  hosts: localhost
 
   roles:
-    - role: "../roles/facts"
+    #- role: "../roles/facts"
     # - role: "../roles/httpd"
     #   vars:
     #     httpd_scan_webshells: true
     #     httpd_scan_directories: ["/var/www/html","/etc/sudoers.d"]
     - role: "../roles/mysql"
       vars:
-        mysql_user: root
-        mysql_password: Password123!
+        mysql_user: "homestead"
+        mysql_password: "secret"
+        mysql_host: 192.168.121.247 # Defaults to localhost
         mysql_shuffle_passwords: true
-        #mysql_backup: true
-        mysql_backup_version: "test"
+        mysql_new_password: secret

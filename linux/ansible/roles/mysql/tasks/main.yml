@@ -1,6 +1,6 @@
 ---
 - name: Gitignore
-  become: true
+  #become: true
   when: mysql_backup is true or mysql_shuffle_passwords is true
   block:
     - name: Create gitignore
@@ -59,7 +59,7 @@
         # How do do this. We need password to authenticate if doing remotely (mysql_host != localhost)... but what if we don't have it? (attacker deletes all users)
 
 - name: Shuffle db users
-  become: "{{ mysql_host != localhost }}"
+  become: "{{ mysql_host == mysql_localhost }}"
   when: mysql_shuffle_passwords is true
   block:
     - name: Create random location for passwords csv
@@ -74,6 +74,8 @@
       community.mysql.mysql_info:
         login_user: "{{ mysql_user }}"
         login_password: "{{ mysql_password }}"
+        login_host: "{{ mysql_host }}"
+        login_port: "{{ mysql_port }}"
         filter:
           - user_info
       register: db_info
@@ -86,34 +88,35 @@
     - name: Generate random password
       ansible.builtin.set_fact:
         # Specials is false here to ensure maximum compatibility with scoring engine.
-        new_password: "{{ lookup('community.general.random_string', length=12, special=false) }}"
+        mysql_new_password: "{{ lookup('community.general.random_string', length=12, special=false) }}"
+      when: not mysql_new_password
 
-    # The mysql_user password is changed last, because this is the user ansible authenticates as. To change the password of it mid play, would lock us out.
-    # After this, we no longer need the authenticate to mysql.
-    - name: Change {{ mysql_user }} password
-      community.mysql.mysql_user:
-        login_user: "{{ mysql_user }}"
-        login_password: "{{ mysql_password }}"
-        login_host: "{{ mysql_host }}"
-        login_port: "{{ mysql_port }}"
-        name: "{{ mysql_user }}"
-        password: "{{ new_password }}"
-        state: present
     - name: Export password changes to CSV
       ansible.builtin.lineinfile:
         path: "/tmp/{{ sqlpasswordsfile }}"
-        line: "{{ mysql_user }},{{ new_password }}"
+        line: "{{ mysql_user }},{{ mysql_new_password }}"
 
-    - name: New {{ mysql_user }} mysql user password is
+    - name: New password for {{ mysql_user }}
       ansible.builtin.debug:
-        msg: "The new password for {{ mysql_user }} is {{ new_password }}"
+        msg: "The new password for {{ mysql_user }} is {{ mysql_new_password }}"
     - name: Fetch passwords csv
       ansible.builtin.fetch:
         src: "/tmp/{{ sqlpasswordsfile }}"
-        dest: "{{ playbook_dir }}/mysql/{{ inventory_hostname }}/passwordlist.csv"
+        dest: "{{ playbook_dir }}/mysql/{{ inventory_hostname if mysql_host == mysql_localhost else mysql_host }}.csv"
         flat: true
     - name: Delete password list file from server
       ansible.builtin.file:
         path: "/tmp/{{ sqlpasswordsfile }}"
         state: absent
-
+    - name: Change password of {{ mysql_user }}
+      community.mysql.mysql_user:
+        login_user: "{{ mysql_user }}"
+        login_password: "{{ mysql_password }}"
+        login_host: "{{ mysql_host }}"
+        login_port: "{{ mysql_port }}"
+        host_all: true
+        name: "{{ mysql_user }}"
+        password: "{{ mysql_new_password }}"
+        state: present
+    # The mysql_user password is changed last, because this is the user ansible authenticates as. To change the password of it mid play, would lock us out.
+    # After this, we no longer need the authenticate to mysql.

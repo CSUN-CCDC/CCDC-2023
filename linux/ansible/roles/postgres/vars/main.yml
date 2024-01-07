@@ -8,6 +8,8 @@ postgres_port: 5432
 
 postgres_passwords_shuffle: false # Shuffle all passwords on postgres and save a csv
 
+postgres_new_password: ""
+
 postgres_backup_version: # Backup version
 
 postgres_backup: false # Back up the db

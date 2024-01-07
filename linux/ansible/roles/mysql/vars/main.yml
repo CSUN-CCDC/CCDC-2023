@@ -1,20 +1,20 @@
-mysql_backup_version: "" # Backup version, string
-
-mysql_backup: false # Set to true to backup, but don't bother with this. Stop the service and use the "backup" role to manage the mysql directory instead.
-
-
-mysql_user: "root" # User to log into the database of
+mysql_user: "root" # User to authenticate to mysql as.
 
 mysql_password: # Password of the mysql root user
 
-mysql_host: "localhost" # Host to connect to.
+mysql_host: 127.0.0.1 # Host to connect to. Not reliable, since the mysql admin account is often configured to deny connections, even authenticated ones, from users outside localhost.
 
+mysql_port: 3306 # Port to connect to.
 
+mysql_shuffle_passwords: false # Set to true to shuffle all passwords.
 
-mysql_port: 3306
-
-mysql_shuffle_passwords: false # Set to true to shuffle all passwords. 
-
+mysql_new_password: "" # Set new password of mysql user you are connecting as, this only runs when shuffle passwords is ran.
 
 # Workaround for a conditional become, where it fails to evaluate inventory_hostname against a string, as it attempts to evaluate the stirng as a variable.
-localhost: "localhost" 
+mysql_localhost: 127.0.0.1
+
+# DONT BOTHER WITH BELOW, USE "backup" role when mysql service is suspended.
+
+mysql_backup_version: "" # Backup version, string
+
+mysql_backup: false # Set to true to backup, but don't bother with this. Stop the service and use the "backup" role to manage the mysql directory instead.

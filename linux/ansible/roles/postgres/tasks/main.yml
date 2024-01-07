@@ -2,14 +2,9 @@
 
 - name: Download gitignore
   when: postgres_shuffle_passwords is true
-  become: true
+  #become: true
   block:
-    # - name: Assert that postgres_backup_version is set
-    #   ansible.builtin.assert:
-    #     that: postgres_backup_version
-    #     fail_msg: "Please set postgres_backup_version"
     - name: Create .gitignore file
-      become: true
       ansible.builtin.template:
         src: templates/gitignore.j2
         dest: /tmp/gitignore
@@ -20,7 +15,6 @@
         dest: "{{ playbook_dir }}/postgres/.gitignore"
         flat: true
     - name: Delete gitignore
-      become: true
       ansible.builtin.file:
         path: /tmp/.gitignore
         state: absent
@@ -60,7 +54,8 @@
       when: "{{ item.key != postgres_user }}"
     - name: Generate password for {{ postgres_user }}
       ansible.builtin.set_fact:
-        new_password: "{{ lookup('community.general.random_string', length=12, special=false) }}"
+        postgres_new_password: "{{ lookup('community.general.random_string', length=12, special=false) }}"
+      when: not postgres_new_password
     - name: Collect user info
       community.postgresql.postgresql_info:
         login_host: "{{ postgres_host }}"
@@ -73,18 +68,10 @@
         # Users are just roles with the "login" attribute, similar to how unix human users get shells.
         # So it doesn't matter if we change the password of every
         msg: "{{ db_info.roles }}"
-    - name: Change postgres password for {{ postgres_user }}
-      community.postgresql.postgresql_user:
-        login_host: "{{ postgres_host }}"
-        login_user: "{{ postgres_user }}"
-        login_password: "{{ postgres_password }}"
-        login_port: "{{ postgres_port }}"
-        user: "{{ postgres_user }}"
-        password: "{{ new_password }}"
     - name: Edit csv with password of {{ postgres_user }}
       ansible.builtin.lineinfile:
         path: "/tmp/{{ postgrespasswords }}"
-        line: "{{ postgres_user }},{{ new_password }}"
+        line: "{{ postgres_user }},{{ postgres_new_password }}"
     - name: Download password csv
       ansible.builtin.fetch:
         src: "/tmp/{{ postgrespasswords }}"
@@ -94,3 +81,11 @@
       ansible.builtin.file:
         path: "/tmp/{{ postgrespasswords }}"
         state: absent
+    - name: Change postgres password for {{ postgres_user }}
+      community.postgresql.postgresql_user:
+        login_host: "{{ postgres_host }}"
+        login_user: "{{ postgres_user }}"
+        login_password: "{{ postgres_password }}"
+        login_port: "{{ postgres_port }}"
+        user: "{{ postgres_user }}"
+        password: "{{ postgres_new_password }}"

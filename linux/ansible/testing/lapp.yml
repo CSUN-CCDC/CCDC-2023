@@ -7,7 +7,7 @@
   #   ansible_python_interpreter: "/nix/store/5mjysbgmg42z2fvdviz5792sxdn6zl5f-python3-3.11.6-env/bin/python"
 
   roles:
-    - role: "../roles/facts"
+    #- role: "../roles/facts"
     # - role: "../roles/httpd"
     #   vars:
     #     httpd_scan_webshells: true
@@ -20,4 +20,6 @@
       vars:
         postgres_user: homestead
         postgres_password: secret
+        postgres_new_password: notsecret
         postgres_shuffle_passwords: true
+        #postgres_host: 192.168.121.253

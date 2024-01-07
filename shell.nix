@@ -10,6 +10,12 @@ let
     dnspython
     jmespath
     pywinrm
+    sqlalchemy
+    mysqlclient
+    psycopg2
+    requests
+    pyopenssl
+    pymongo
     # other python packages
   ];
   #vagrantPackage = if builtins.pathExists /etc/wsl.conf then "" else "vagrant";
