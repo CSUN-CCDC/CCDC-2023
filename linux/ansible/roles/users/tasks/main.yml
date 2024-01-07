@@ -10,8 +10,44 @@
   ansible.builtin.getent:
     database: group
 
+- name: Control who is equivalent to admin
+  when: users_admins | length > 0 # Checks if list is non-empty
+  become: true
+  block:
+    - name: Get which users are part of admin groups
+      ansible.builtin.set_fact:
+        sudo_users: "{{ ansible_facts.getent_group.sudo[2].split(',') if 'sudo' in ansible_facts.getent_group else [] }}"
+        docker_users: "{{ ansible_facts.getent_group.docker[2].split(',') if 'docker' in ansible_facts.getent_group else [] }}"
+        wheel_users: "{{ ansible_facts.getent_group.wheel[2].split(',') if 'wheel' in ansible_facts.getent_group else [] }}"
+        admin_groups: ["sudo", "docker", "wheel"]
+    - name: Concatenate admin groups, get real admin groups
+      ansible.builtin.set_fact:
+        existing_admin_users: "{{ sudo_users | union(docker_users) | union(wheel_users) | reject('equalto', '') | list }}"
+        existing_admin_groups_string: "{{ 'sudo ' if 'sudo' in ansible_facts.getent_group else '' }}{{ 'docker ' if 'docker' in ansible_facts.getent_group else '' }}{{ 'wheel' if 'wheel' in ansible_facts.getent_group else '' }}"
+    - name: Print existing_admin_groups_string
+      ansible.builtin.debug:
+        var: existing_admin_groups_string
+    - name: List existing admin users
+      ansible.builtin.debug:
+        var: existing_admin_users
+    - name: Print only who is supposed to be an admin user
+      ansible.builtin.debug:
+        msg: "{{ existing_admin_users | difference(users_admins) }}"
+    - name: Loop through admins, remove incorrect one's from admin groups
+      ansible.builtin.include_tasks:
+        file: tasks/remove_bad_admins.yml
+      loop: "{{ existing_admin_users | difference(users_admins) }}"
+    - name: Get existing admin groups as a list
+      ansible.builtin.set_fact:
+        existing_admin_groups: "{{ existing_admin_groups_string.split(' ') | list }}"
+    - name: Print existing admin groups
+      ansible.builtin.debug:
+        var: existing_admin_groups
+    - name: Add declared admins to correct groups
+      ansible.builtin.include_tasks:
+        file: tasks/add_good_admins.yml
+      loop: "{{ users_admins }}"
 
-# TODO: Only have it generate passwords for users that already have a password, right now it generates for every users
 - name: Shuffle passwd user passwords
   become: true
   when: users_passwords_shuffle
@@ -55,57 +91,24 @@
       ansible.builtin.set_fact:
         # Specials is false here to ensure maximum compatibility with scoring engine.
         users_admin_password: "{{ lookup('community.general.random_string', length=12, special=false) }}"
-      when: users_admin_password
+      when: not users_admin_password
 
     - name: Export password of {{ ansible_user }}
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ passwordlistfile }}"
+        line: "{{ ansible_user }},{{ users_admin_password }}"
+
     - name: Fetch passwordlist
       ansible.builtin.fetch:
         src: "/tmp/{{ passwordlistfile }}"
-        dest: "{{ playbook_dir }}/passwords/{{ inventory_hostname }}/passwordlist.csv"
+        dest: "{{ playbook_dir }}/passwords/{{ inventory_hostname }}-passwordlist.csv"
         flat: true
     - name: Delete passwordlist
       ansible.builtin.file:
         path: "/tmp/{{ passwordlistfile }}"
         state: absent
+    # Change the password of the user we are authentication as, as the last option, in order to avoid lockout.
     - name: Change password for {{ ansible_user }}
       ansible.builtin.user:
-        name: "{{ item }}"
+        name: "{{ ansible_user }}"
         password: "{{ users_admin_password | password_hash(users_passwords_hash) }}"
-
-- name: Control who is equivalent to admin
-  when: users_admins | length > 0 # Checks if list is non-empty
-  become: true
-  block:
-    - name: Get which users are part of admin groups
-      ansible.builtin.set_fact:
-        sudo_users: "{{ ansible_facts.getent_group.sudo[2].split(',') if 'sudo' in ansible_facts.getent_group else [] }}"
-        docker_users: "{{ ansible_facts.getent_group.docker[2].split(',') if 'docker' in ansible_facts.getent_group else [] }}"
-        wheel_users: "{{ ansible_facts.getent_group.wheel[2].split(',') if 'wheel' in ansible_facts.getent_group else [] }}"
-        admin_groups: ["sudo", "docker", "wheel"]
-    - name: Concatenate admin groups, get real admin groups
-      ansible.builtin.set_fact:
-        existing_admin_users: "{{ sudo_users | union(docker_users) | union(wheel_users) | reject('equalto', '') | list }}"
-        existing_admin_groups_string: "{{ 'sudo ' if 'sudo' in ansible_facts.getent_group else '' }}{{ 'docker ' if 'docker' in ansible_facts.getent_group else '' }}{{ 'wheel' if 'wheel' in ansible_facts.getent_group else '' }}"
-    - name: Print existing_admin_groups_string
-      ansible.builtin.debug:
-        var: existing_admin_groups_string
-    - name: List existing admin users
-      ansible.builtin.debug:
-        var: existing_admin_users
-    - name: Print only who is supposed to be an admin user
-      ansible.builtin.debug:
-        msg: "{{ existing_admin_users | difference(users_admins) }}"
-    - name: Loop through admins, remove incorrect one's from admin groups
-      ansible.builtin.include_tasks:
-        file: tasks/remove_bad_admins.yml
-      loop: "{{ existing_admin_users | difference(users_admins) }}"
-    - name: Get existing admin groups as a list
-      ansible.builtin.set_fact:
-        existing_admin_groups: "{{ existing_admin_groups_string.split(' ') | list }}"
-    - name: Print existing admin groups
-      ansible.builtin.debug:
-        var: existing_admin_groups
-    - name: Add declared admins to correct groups
-      ansible.builtin.include_tasks:
-        file: tasks/add_good_admins.yml
-      loop: "{{ users_admins }}"

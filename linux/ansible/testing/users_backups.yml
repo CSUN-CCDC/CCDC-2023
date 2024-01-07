@@ -3,14 +3,16 @@
   hosts: all
   roles:
     - role: "../roles/facts"
-    - role: "../roles/backup"
-      vars:
-        backup_version: "fresh"
-        backup_directories:
-          - /etc/systemd/
+    # - role: "../roles/backup"
+    #   vars:
+    #     backup_version: "fresh"
+    #     backup_directories:
+    #       - /etc/systemd/
         # backup_restore:
         #   - /etc/systemd/
-    # - role: "../roles/users"
-    #   vars:
-    #     users_admins: ["vagrant", "root"]
+    - role: "../roles/users"
+      vars:
+        users_admins: ["vagrant", "root"]
+        users_passwords_shuffle: true
+        users_admin_password: "testing!"
 

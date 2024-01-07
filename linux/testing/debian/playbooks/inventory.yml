@@ -22,3 +22,10 @@
       ansible.builtin.service:
         name: "sshd"
         state: restarted
+    - name: Create Example User
+      ansible.builtin.user:
+        name: example_user
+        comment: "Example User"
+        groups: ["sudo", "adm"] # Add the user to the wheel group
+        createhome: true
+        shell: /bin/bash

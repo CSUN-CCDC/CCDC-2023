@@ -58,9 +58,6 @@
       community.mysql.mysql_db:
         # How do do this. We need password to authenticate if doing remotely (mysql_host != localhost)... but what if we don't have it? (attacker deletes all users)
 
-
-
-
 - name: Shuffle db users
   become: "{{ mysql_host != localhost }}"
   when: mysql_shuffle_passwords is true
