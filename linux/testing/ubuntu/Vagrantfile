@@ -52,6 +52,28 @@ Vagrant.configure("2") do |config|
         end
         
     end
+    config.vm.define "keycloak" do |vmconfig|
+        # Basically focal, but with a webshell installed as well.
+
+        vmconfig.vm.provision "ansible" do |ansible|
+            ansible.playbook = "playbooks/keycloak.yml"
+        end
+        vmconfig.vm.box = "techchad2022/lamp" # Ubuntu 22.04 LTS, Jammy Jellyfish 
+        # sql user: root. Sql password: "Password123!"
+        vmconfig.vm.provider "libvirt" do |libvirt|
+            libvirt.driver = "kvm"
+            libvirt.memory = 2048
+            libvirt.cpus = 2
+            libvirt.video_type = "virtio"
+            #libvirt.graphics_type = "vnc"
+        end
+        vmconfig.vm.provider "virtualbox" do |virtualbox,override|
+            virtualbox.memory = 2048
+            virtualbox.cpus = 1
+            #override.vm.network "private_network", ip: "192.168.56.4"
+        end
+        
+    end
 
     config.vm.define "homestead" do |vmconfig|
         # Basically focal, but with a webshell installed as well.

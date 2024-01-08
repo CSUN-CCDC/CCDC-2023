@@ -2,10 +2,11 @@
 - name: Set security policies for System Access
   # become: true
   # become: "{{ ansible_user }}"
-  when: 
+  when: secpols_configure
   block:
     - name: Disable password complexity
       community.windows.win_security_policy:
         section: "System Access"
-        key: "PasswordComplexity"
-        value: 0
+        key: "{{ item.key }}"
+        value: "{{ item.value }}"
+      loop: "{{ secpols_system_access | dict2items }}"

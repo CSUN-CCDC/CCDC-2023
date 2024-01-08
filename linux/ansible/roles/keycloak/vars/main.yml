@@ -6,3 +6,9 @@ keycloak_server: ""
 
 keycloak_realm: "master" # Realm of keycloak
 
+keycloak_user: "admin"
+
+keycloak_password: "password"
+
+keycloak_passwords_shuffle: false
+
