@@ -1,16 +1,37 @@
 ---
 
 
-- name: Shuffle windows passwords
-  # become: true
-  # become: "{{ ansible_user }}"
-  when: domain_passwords_shuffle is true
+- name: Download gitignore
+  when: domain_passwords_shuffle
   block:
-    - name: Disable password complexity
-      community.windows.win_security_policy:
-        section: "System Access"
-        key: "PasswordComplexity"
-        value: 0
+    - name: Create passwords file
+      ansible.windows.win_tempfile:
+        suffix: "gitignore"
+        state: file
+      register: gitignore_file
+    - name: Add * to gitignore
+      community.windows.win_lineinfile:
+        path: "{{ gitignore_file.path }}"
+        line: "*"
+    - name: Fetch gitignore
+      ansible.builtin.fetch:
+        src: "{{ gitignore_file.path }}"
+        dest: "{{ playbook_dir }}/domain/.gitignore"
+        flat: true
+    - name: Delete gitignore
+      become: true
+      ansible.builtin.file:
+        path: /tmp/.gitignore
+        state: absent
+
+- name: Shuffle windows passwords
+  when: domain_passwords_shuffle
+  block:
+    # - name: Disable password complexity
+    #   community.windows.win_security_policy:
+    #     section: "System Access"
+    #     key: "PasswordComplexity"
+    #     value: 0
     - name: Print ansible_user
       ansible.builtin.debug:
         var: ansible_user
@@ -26,7 +47,7 @@
       microsoft.ad.object_info:
         filter: ObjectClass -eq 'user' -and objectCategory -eq 'Person'
         properties:
-        - objectSid
+          - objectSid
       register: ad_users
     - name: Shuffle through users and change their password
       ansible.builtin.include_tasks:
@@ -47,7 +68,7 @@
     - name: Fetch adpassworsd
       ansible.builtin.fetch:
         src: "{{ adpasswordfile.path }}"
-        dest: "{{ playbook_dir }}/domains/{{ inventory_hostname if inventory_hostname in domain_localhost else ansible_facts['nodename'] }}.csv"
+        dest: "{{ playbook_dir }}/domain/{{ inventory_hostname if inventory_hostname in domain_localhost else ansible_facts['nodename'] }}.csv"
         flat: true
     - name: Delete passwords file
       ansible.windows.win_file:

@@ -1,10 +1,43 @@
 ---
+
+- name: Download gitignore
+  when: ntlm_passwords_shuffle
+  block:
+    - name: Create passwords file
+      ansible.windows.win_tempfile:
+        suffix: "gitignore"
+        state: file
+      register: gitignore_file
+    - name: Add * to gitignore
+      community.windows.win_lineinfile:
+        path: "{{ gitignore_file.path }}"
+        line: "*"
+    - name: Fetch gitignore
+      ansible.builtin.fetch:
+        src: "{{ gitignore_file.path }}"
+        dest: "{{ playbook_dir }}/domain/.gitignore"
+        flat: true
+    - name: Delete gitignore
+      become: true
+      ansible.builtin.file:
+        path: /tmp/.gitignore
+
 - name: Shuffle windows users passwords
-  when: ntlm_shuffle_passwords is true
+  when: ntlm_passwords_shuffle is true
   block:
     - name: Get windows list of users
-      win_shell: Get-WmiObject Win32_UserAccount | Select-Object Name
-      register: user_list
+      ansible.builtin.win_shell: Get-WmiObject Win32_UserAccount | Select-Object -ExpandProperty Name
+      register: local_users
     - name: Display user list
       ansible.builtin.debug:
-        var: user_list
+        # Each line of stdout_lines is a user to shuffle
+        var: local_users
+    - name: Create random location for passwords csv
+      ansible.builtin.set_fact:
+        ntlmpasswordfile_suffix: "{{ lookup('community.general.random_string', length=12, special=false) }}"
+    - name: Create passwords file
+      ansible.windows.win_tempfile:
+        suffix: "{{ ntlmpasswordfile_suffix }}"
+        state: file
+      register: ntlmpasswordfile
+    

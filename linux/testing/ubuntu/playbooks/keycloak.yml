@@ -35,21 +35,38 @@
       community.mysql.mysql_db:
         login_user: "root"
         login_password: "Password123!"
-        name: keycloak_db
+        name: keycloak
         state: present
+    - name: Get keycloak example realm
+      ansible.builtin.git:
+        repo: 
+        repo: https://github.com/strimzi/strimzi-kafka-oauth
+        dest: "/opt/keycloak-realm"
     # https://www.keycloak.org/server/containers
     # https://www.keycloak.org/getting-started/getting-started-docker
     - name: Run keycloak docker container
       community.docker.docker_container:
         name: keycloak
-        image: docker.io/ladynev/keycloak-mysql-realm-users
+        image: quay.io/keycloak/keycloak:latest
         network_mode: host
+        volumes:
+          - "/opt/keycloak-realm/testsuite/docker/keycloak/realms:/opt/keycloak/data/import"
+        # ports:
+        #   - "8080:8080"
+        #   - "8443:8443"
+        command: "start-dev --import-realm"
         env:
-            MYSQL_PORT_3306_TCP_ADDR: "localhost"
-            MYSQL_PORT_3306_TCP_PORT: "3306"
-            MYSQL_DATABASE: "keycloak_db"
-            MYSQL_USERNAME: "root"
-            MYSQL_PASSWORD: "Password123!"
-            KEYCLOAK_USER: "admin"
-            KEYCLOAK_PASSWORD: "admin"
+          KC_DB: "mysql"
+          # KC_DB_URL: "jdbc:mysql://localhost/keycloak_db"
+          KC_DB_USERNAME: "root"
+          KC_DB_PASSWORD: "Password123!"
+          KEYCLOAK_ADMIN: "admin"
+          KEYCLOAK_ADMIN_PASSWORD: "admin"
+          KC_HOSTNAME: lampserver
+          KC_HOSTNAME_STRICT: "false"
+          KC_HOSTNAME_STRICT_HTTPS: "false"
+          KC_HTTP_ENABLED: "true"
+          KC_PROXY: "edge"
+          # KC_HTTPS_KEY_STORE_FILE: "/opt/keycloak/httpskeystore"
+          # KC_HTTPS_KEY_STORE_PASSWORD: "password"
         state: started

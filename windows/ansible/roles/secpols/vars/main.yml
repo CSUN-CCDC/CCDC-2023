@@ -1,7 +1,7 @@
 ---
 
-secpols_configure: false # To run this role overall, may be changed later. 
+secpols_configure: false # To run this role overall, may be changed later.
 
 secpols_system_access: # Dictionary, of relevant values
   PasswordComplexity: 0
-  
+

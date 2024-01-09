@@ -61,7 +61,6 @@
     - name: pause the play
       ansible.builtin.pause:
       
-
     - name: Shuffle passwords
       ansible.builtin.include_tasks:
         file: tasks/shuffle_passwords.yml
@@ -70,16 +69,7 @@
     - name: Generate password for {{ mongo_user }}
       ansible.builtin.set_fact:
         new_password: "{{ lookup('community.general.random_string', length=12, special=false) }}"
-  
 
-    - name: Change mongo password for {{ mongo_user }}
-      community.mongodb.mongodb_user:
-        login_host: "{{ mongo_host }}"
-        login_user: "{{ mongo_user }}"
-        login_password: "{{ mongo_password }}"
-        login_port: "{{ mongo_port }}"
-        user: "{{ mongo_user }}"
-        password: "{{ new_password }}"
     - name: Edit csv with password of {{ mongo_user }}
       ansible.builtin.lineinfile:
         path: "/tmp/{{ mongopasswords }}"
@@ -93,3 +83,11 @@
       ansible.builtin.file:
         path: "/tmp/{{ mongopasswords }}"
         state: absent
+    - name: Change mongo password for {{ mongo_user }}
+      community.mongodb.mongodb_user:
+        login_host: "{{ mongo_host }}"
+        login_user: "{{ mongo_user }}"
+        login_password: "{{ mongo_password }}"
+        login_port: "{{ mongo_port }}"
+        user: "{{ mongo_user }}"
+        password: "{{ new_password }}"
