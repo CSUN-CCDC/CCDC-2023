@@ -39,7 +39,6 @@
         state: present
     - name: Get keycloak example realm
       ansible.builtin.git:
-        repo: 
         repo: https://github.com/strimzi/strimzi-kafka-oauth
         dest: "/opt/keycloak-realm"
     # https://www.keycloak.org/server/containers
@@ -62,7 +61,8 @@
           KC_DB_PASSWORD: "Password123!"
           KEYCLOAK_ADMIN: "admin"
           KEYCLOAK_ADMIN_PASSWORD: "admin"
-          KC_HOSTNAME: lampserver
+          KC_HOSTNAME: "{{ ansible_default_ipv4.address }}"
+          KC_HOSTNAME_PORT: "8080"
           KC_HOSTNAME_STRICT: "false"
           KC_HOSTNAME_STRICT_HTTPS: "false"
           KC_HTTP_ENABLED: "true"
@@ -70,3 +70,6 @@
           # KC_HTTPS_KEY_STORE_FILE: "/opt/keycloak/httpskeystore"
           # KC_HTTPS_KEY_STORE_PASSWORD: "password"
         state: started
+    - name: Display IP address
+      ansible.builtin.debug:
+        var: ansible_default_ipv4.address

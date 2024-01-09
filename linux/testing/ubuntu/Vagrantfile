@@ -53,8 +53,10 @@ Vagrant.configure("2") do |config|
         
     end
     config.vm.define "keycloak" do |vmconfig|
-        # Basically focal, but with a webshell installed as well.
-
+        # A variation of "lamp" above
+        # Keycloak is deployed to vm ip, port 8080. 
+        # User: admin. Password: admin
+        # Some example realms have been imported as well
         vmconfig.vm.provision "ansible" do |ansible|
             ansible.playbook = "playbooks/keycloak.yml"
         end
