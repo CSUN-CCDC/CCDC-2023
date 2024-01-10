@@ -1,14 +1,44 @@
 ---
 
+- name: Download gitignore
+  when: keycloak_passwords_shuffle
+  block:
+    - name: Create .gitignore file
+      ansible.builtin.file:
+        path: /tmp/gitignore
+        state: touch
+        mode: '0644'
+    - name: Put * in gitignore
+      ansible.builtin.lineinfile:
+        path: /tmp/gitignore
+        line: "*"
+    - name: Fetch gitignore
+      ansible.builtin.fetch:
+        src: /tmp/gitignore
+        dest: "{{ playbook_dir }}/keycloak/.gitignore"
+        flat: true
+    - name: Delete gitignore from server
+      ansible.builtin.file:
+        path: /tmp/gitignore
+        state: absent
+
+
 - name: Shuffle keycloak user passwords
   # become: true
   when: keycloak_passwords_shuffle
   block:
-    # To get list of users?
-    # From chatgpt
+    - name: Create random location for passwords csv
+      ansible.builtin.set_fact:
+        keycloakpasswords: "{{ lookup('community.general.random_string', length=12, special=false) }}"
+    - name: Create scoring engine CSV
+      ansible.builtin.file:
+        dest: "/tmp/{{ keycloakpasswords }}"
+        mode: '0644'
+        state: touch
+    # The api stuff here only works on keycloak v19 or above. Possibly needs to be changed for backwards compatibility.
     - name: Retrieve Keycloak access token
       ansible.builtin.uri:
-        url: "{{ keycloak_tls }}://{{ keycloak_server }}/auth/realms/{{ keycloak_realm }}/protocol/openid-connect/token"
+        url: "{{ keycloak_tls }}://{{ keycloak_server }}/realms/{{ keycloak_admin_realm }}/protocol/openid-connect/token"
         method: POST
         body_format: form-urlencoded
         body:
@@ -17,17 +47,54 @@
           grant_type: "password"
           client_id: "admin-cli"
       register: keycloak_token
-    - name: Retrieve list of Keycloak users
+    - name: Get keycloak list of realms
       ansible.builtin.uri:
-        url: "{{ keycloak_tls }}://{{ keycloak_server }}/{{ keycloak_realm }}/users"
+        url: "{{ keycloak_tls }}://{{ keycloak_server }}/admin/realms" # ?briefRepresentation=true"
         method: GET
         headers:
           Authorization: "Bearer {{ keycloak_token.json.access_token }}"
-      register: keycloak_users
-
-    - name: Display Keycloak users
+      register: keycloak_realms
+    - name: Print realms
       ansible.builtin.debug:
-        var: keycloak_users.json
+        var: item.get('realm')
+      loop: "{{ keycloak_realms.json }}"
+    - name: Loop through keycloak realms
+      ansible.builtin.include_tasks:
+        file: tasks/realm_shuffle.yml
+      loop: "{{ keycloak_realms.json }}"
+    - name: Generate new admin password
+      ansible.builtin.set_fact:
+        keycloak_new_password: "{{ lookup('community.general.random_string', length=12, special=false) }}"
+      when: not keycloak_new_password
+    - name: Export password changes to CSV
+      ansible.builtin.lineinfile:
+        path: "/tmp/{{ keycloakpasswords }}"
+        line: "{{ keycloak_user }},{{ keycloak_new_password }}"
+    - name: Fetch passwordlist
+      ansible.builtin.fetch:
+        src: "/tmp/{{ keycloakpasswords }}"
+        dest: "{{ playbook_dir }}/keycloak/{{ keycloak_server }}-passwordlist.csv"
+        flat: true
+    - name: Delete passwordlist
+      ansible.builtin.file:
+        path: "/tmp/{{ keycloakpasswords }}"
+        state: absent
+    - name: Change password of keycloak admin
+      when: false
+      community.general.keycloak_user:
+        auth_keycloak_url: "{{ keycloak_tls }}://{{ keycloak_server }}/"
+        token: "{{ keycloak_token.json.access_token }}"
+        # auth_username: "{{ keycloak_user }}"
+        # auth_password: "{{ keycloak_password }}"
+        # auth_realm: "{{ keycloak_admin_realm }}"
+        realm: "{{ keycloak_admin_realm }}"
+        username: "{{ keycloak_user }}"
+        credentials:
+          - type: password
+            value: "{{ keycloak_new_password }}"
+            temporary: false
+        force: true
+        state: present
 
 
 # To change users

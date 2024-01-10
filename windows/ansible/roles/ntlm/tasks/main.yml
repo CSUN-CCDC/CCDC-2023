@@ -26,7 +26,7 @@
   when: ntlm_passwords_shuffle is true
   block:
     - name: Get windows list of users
-      ansible.builtin.win_shell: Get-WmiObject Win32_UserAccount | Select-Object -ExpandProperty Name
+      ansible.windows.win_shell: Get-WmiObject Win32_UserAccount | Select-Object -ExpandProperty Name
       register: local_users
     - name: Display user list
       ansible.builtin.debug:
@@ -40,4 +40,30 @@
         suffix: "{{ ntlmpasswordfile_suffix }}"
         state: file
       register: ntlmpasswordfile
-    
+    - name: Loop through users, change passwords
+      ansible.builtin.include_tasks:
+        file: tasks/change_password.yml
+      when: "{{ item != ansible_user }}"
+      loop: "{{ local_users.stdout_lines }}"
+    - name: Generate password of {{ ansible_user }}
+      ansible.builtin.set_fact:
+        ntlm_admin_password: "{{ lookup('community.general.random_string', length=12, special=false) }}"
+      when: not ntlm_admin_password 
+    - name: Export password changes to CSV
+      ansible.windows.win_lineinfile:
+        path: "{{ ntlmpasswords.path }}"
+        line: "{{ ansible_user }},{{ ntlm_admin_password }}"
+
+    - name: Fetch local users passwords csv
+      ansible.builtin.fetch:
+        src: "{{ ntlmpasswords.path }}"
+        dest: "{{ playbook_dir }}/ntlm/{{ inventory_hostname if inventory_hostname != ntlm_localhost else ansible_facts['nodename'] }}.csv"
+        flat: true
+    - name: Delete passwords file
+      ansible.windows.win_file:
+        path: "{{ ntlmpasswords.path }}"
+        state: absent
+    - name: Change password for user {{ ansible_user }}
+      ansible.windows.win_user:
+        name: "{{ ansible_user }}"
+        password: "{{ ntlm_admin_password }}"

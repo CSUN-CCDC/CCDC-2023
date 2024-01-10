@@ -1,0 +1,29 @@
+---
+- name: Print current keycloak realm
+  ansible.builtin.debug:
+    var: item.get('realm')
+- name: Get users of realm
+  ansible.builtin.uri:
+    url: "{{ keycloak_tls }}://{{ keycloak_server }}/admin/realms/{{ item.get('realm') }}/users"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ keycloak_token.json.access_token }}"
+  register: realm_users
+- name: Print realm users
+  ansible.builtin.debug:
+    var: realm_users
+
+- name: Loop and print realm users
+  ansible.builtin.debug:
+    msg: "{{ userinfo.username }} {{ userinfo.id }}"
+  loop: "{{ realm_users.json }}"
+  loop_control:
+    loop_var: userinfo
+
+- name: Change user passwords
+  ansible.builtin.include_tasks:
+    file: tasks/shuffle_passwords.yml
+  when: "{{ userinfo.username != keycloak_user and item.get('realm') != keycloak_admin_realm }}"
+  loop: "{{ realm_users.json }}"
+  loop_control:
+    loop_var: userinfo

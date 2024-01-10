@@ -1,3 +1,5 @@
 ntlm_passwords_shuffle: false # Whether or not to shuffle all the local user passwords, including the user you are logged in as.
 
 ntlm_admin_password: "" # New password of user configuring the machine. If unset, will be random
+
+ntlm_localhost: "localhost"

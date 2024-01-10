@@ -1,0 +1,15 @@
+---
+- name: Playbook for testing webserver related roles
+  hosts: localhost
+  vars:
+      stdout_callback: "yaml"
+
+  roles:
+    - role: "../roles/keycloak"
+      vars:
+        keycloak_passwords_shuffle: true
+        keycloak_server: "192.168.121.175:8080"
+        keycloak_user: admin
+        keycloak_password: admin
+        keycloak_tls: http
+        keycloak_new_password: admin
