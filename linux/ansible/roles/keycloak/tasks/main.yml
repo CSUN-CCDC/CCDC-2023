@@ -58,6 +58,13 @@
       ansible.builtin.debug:
         var: item.get('realm')
       loop: "{{ keycloak_realms.json }}"
+
+
+
+    - name: Create dict for users and passwords
+      ansible.builtin.set_fact:
+        keycloak_userpass_dict: {}
+  
     - name: Loop through keycloak realms
       ansible.builtin.include_tasks:
         file: tasks/realm_shuffle.yml
@@ -81,12 +88,13 @@
         state: absent
     - name: Change password of keycloak admin
       when: false
+      # This error's 401 unauthorized. Also get a similar issue from the web ui, occasionally.
       community.general.keycloak_user:
         auth_keycloak_url: "{{ keycloak_tls }}://{{ keycloak_server }}/"
-        token: "{{ keycloak_token.json.access_token }}"
-        # auth_username: "{{ keycloak_user }}"
-        # auth_password: "{{ keycloak_password }}"
-        # auth_realm: "{{ keycloak_admin_realm }}"
+        #token: "{{ keycloak_token.json.access_token }}"
+        auth_username: "{{ keycloak_user }}"
+        auth_password: "{{ keycloak_password }}"
+        auth_realm: "{{ keycloak_admin_realm }}"
         realm: "{{ keycloak_admin_realm }}"
         username: "{{ keycloak_user }}"
         credentials:
@@ -95,7 +103,3 @@
             temporary: false
         force: true
         state: present
-
-
-# To change users
-# https://docs.ansible.com/ansible/latest/collections/community/general/keycloak_user_module.html#ansible-collections-community-general-keycloak-user-module
