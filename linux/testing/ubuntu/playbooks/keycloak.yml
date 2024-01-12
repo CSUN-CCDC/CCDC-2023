@@ -41,12 +41,15 @@
       ansible.builtin.git:
         repo: https://github.com/strimzi/strimzi-kafka-oauth
         dest: "/opt/keycloak-realm"
+        version: main
+        single_branch: true
+        depth: 1
     # https://www.keycloak.org/server/containers
     # https://www.keycloak.org/getting-started/getting-started-docker
     - name: Run keycloak docker container
       community.docker.docker_container:
         name: keycloak
-        image: quay.io/keycloak/keycloak:latest
+        image: "quay.io/keycloak/keycloak:{{ keycloak_version }}"
         network_mode: host
         volumes:
           - "/opt/keycloak-realm/testsuite/docker/keycloak/realms:/opt/keycloak/data/import"

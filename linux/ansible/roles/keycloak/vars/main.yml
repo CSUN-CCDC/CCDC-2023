@@ -17,3 +17,11 @@ keycloak_passwords_shuffle: false
 
 keycloak_new_password: "" # Sets new admin password for keycloak
 
+keycloak_version: "23" # Version of keycloak
+
+# Below are for running the playbook, and are not expected to be user modified. 
+
+keycloak_userpass_dict: {}
+
+keycloak_api_specs:
+  "23": 

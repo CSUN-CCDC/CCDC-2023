@@ -3,11 +3,27 @@
 
 Vagrant.configure("2") do |config|
 
-    config.vm.synced_folder ".", "/vagrant", disabled: true
+    #config.vm.synced_folder ".", "/vagrant", disabled: true
+    config.vm.communicator = "winrm"
+    config.winrm.transport = :plaintext
+    #config.winrm.host = "127.0.0.1"
+    config.winrm.port = 55985
+    config.winrm.ssl_peer_verification = false
+    config.winrm.basic_auth_only = true
 
     config.vm.define "10" do |vmconfig|
+
         vmconfig.vm.box = "valengus/windows10-22h2-x64"
-        vmconfig.vm.provider "libvirt" do |libvirt|
+        vmconfig.vm.provision "ansible" do |ansible|
+            ansible.playbook = "ansible/inventory.yml"
+            ansible.compatibility_mode = "2.0"
+            ansible.extra_vars = {
+                ansible_winrm_scheme: "http"
+            }
+        end
+        vmconfig.vm.provider "libvirt" do |libvirt, override|
+            override.winrm.port = 5985
+            override.winrm.guest_port = 5985
             libvirt.driver = "kvm"
             libvirt.memory = 6000
             libvirt.cpus = 2
@@ -16,6 +32,15 @@ Vagrant.configure("2") do |config|
             libvirt.nested = "true"
             #libvirt.graphics_type = "vnc"
         end
+        vmconfig.vm.provider "virtualbox" do |virtualbox, override|
+            override.winrm.host = "127.0.0.1"
+            override.winrm.port = 55985
+            # This is dumb. Only winrm port should be needed needed, but due to vagrant doing some magic, it ignores it in favor of guest_port, which defaults to 5986. 
+            override.winrm.guest_port = 55985
+            virtualbox.memory = 3000
+            virtualbox.cpus = 2
+        end
+
         vmconfig.vm.provider "vmware_desktop" do |vmware|
             vmware.vmx["memsize"] = "1024"
             vmware.vmx["numvcpus"] = "1"
@@ -38,6 +63,13 @@ Vagrant.configure("2") do |config|
 
     config.vm.define "11" do |vmconfig|
         vmconfig.vm.box = "valengus/windows11-22h2-x64"
+        vmconfig.vm.provision "ansible" do |ansible|
+            ansible.playbook = "ansible/inventory.yml"
+            ansible.compatibility_mode = "2.0"
+            ansible.extra_vars = {
+                ansible_winrm_scheme: "http"
+            }
+        end
         vmconfig.vm.provider "libvirt" do |libvirt|
             libvirt.driver = "kvm"
             libvirt.memory = 6000

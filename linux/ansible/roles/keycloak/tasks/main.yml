@@ -58,12 +58,6 @@
       ansible.builtin.debug:
         var: item.get('realm')
       loop: "{{ keycloak_realms.json }}"
-
-
-
-    - name: Create dict for users and passwords
-      ansible.builtin.set_fact:
-        keycloak_userpass_dict: {}
   
     - name: Loop through keycloak realms
       ansible.builtin.include_tasks:

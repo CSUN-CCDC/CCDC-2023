@@ -5,12 +5,17 @@
     ansible_winrm_scheme: "http"
     stdout_callback: "yaml"
   roles:
-    # - role: "../roles/secpols"
-    #   vars:
-    #     secpols_configure: true
-    #     secpols_system_access:
-    #       PasswordComplexity: 0
+    - role: "../roles/secpols"
+      vars:
+        secpols_configure: true
+        secpols_system_access:
+          PasswordComplexity: 0
     - role: "../roles/ntlm"
       vars:
         ntlm_passwords_shuffle: true
         ntlm_admin_password: "notvagrant1!"
+    - role: "../roles/secpols"
+      vars:
+        secpols_configure: true
+        secpols_system_access:
+          PasswordComplexity: 0
