@@ -1,0 +1,8 @@
+all:
+  hosts:
+    ohio:
+      ansible_ssh_host: 10.20.10.113
+      ansible_ssh_user: root
+      ansible_ssh_pass: Is1WaterWet?
+      ansible_become_pass: Is1WaterWet?
+    

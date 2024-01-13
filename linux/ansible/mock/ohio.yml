@@ -1,0 +1,6 @@
+---
+- name: Playbook for testing webserver related roles
+  hosts: all
+
+  roles:
+    - role: "../roles/facts"      
