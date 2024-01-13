@@ -101,33 +101,7 @@ Vagrant.configure("2") do |config|
             virtualbox.cpus = 1
         end
     end
-    config.vm.define "keycloak21" do |vmconfig|
-        # A variation of "keycloak" above
-        # Older version of keycloak, for testing api compatibility.
-        # https://keycloak-archive.github.io/archive/documentation-21.1.html
-        # https://keycloak-archive.github.io/docs-api/21.1.1/rest-api/index.html
-        # Keycloak is deployed to vm ip, port 8080. 
-        # User: admin. Password: admin
-        # Some example realms have been imported as well
-        vmconfig.vm.provision "ansible" do |ansible|
-            ansible.playbook = "playbooks/keycloak.yml"
-            ansible.extra_vars = {
-                keycloak_version: "21.0"
-            }
-        end
-        vmconfig.vm.box = "techchad2022/lamp" # Ubuntu 22.04 LTS, Jammy Jellyfish 
-        # sql user: root. Sql password: "Password123!"
-        vmconfig.vm.provider "libvirt" do |libvirt|
-            libvirt.driver = "kvm"
-            libvirt.memory = 2048
-            libvirt.cpus = 2
-            libvirt.video_type = "virtio"
-        end
-        vmconfig.vm.provider "virtualbox" do |virtualbox,override|
-            virtualbox.memory = 2048
-            virtualbox.cpus = 1
-        end
-    end
+
     config.vm.define "keycloak18" do |vmconfig|
         # A variation of "keycloak" above
         # Older version of keycloak, for testing api compatibility.

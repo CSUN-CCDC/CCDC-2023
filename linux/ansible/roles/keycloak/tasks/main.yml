@@ -35,7 +35,7 @@
         dest: "/tmp/{{ keycloakpasswords }}"
         mode: '0644'
         state: touch
-    # The api stuff here only works on keycloak v19 or above. Possibly needs to be changed for backwards compatibility.
+    # The api stuff here only works on keycloak 23. Possibly needs to be changed for backwards compatibility. Possible targets: 21, 19. 
     - name: Retrieve Keycloak access token
       ansible.builtin.uri:
         url: "{{ keycloak_tls }}://{{ keycloak_server }}/realms/{{ keycloak_admin_realm }}/protocol/openid-connect/token"
