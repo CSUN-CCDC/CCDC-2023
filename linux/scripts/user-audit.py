@@ -1,4 +1,6 @@
 #!/usr/bin/python3.7
+
+#WARNING: Created with ChatGPT copied and pasted; template holder;untested
 import os
 import subprocess
 from time import sleep
