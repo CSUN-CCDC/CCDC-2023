@@ -29,6 +29,19 @@
       value: "no"
     - parameter: PasswordAuthentication
       value: "yes"
+      #Logan's edits
+    - parameter: MaxAuthTries
+      value: "3"
+    - paramter: ClientAliveInterval
+      value: "120"
+    - parameter: Protocol
+      value: "2"
+    - parameter: HostBasedAuthentication
+      value: "no"
+    - parameter: maxsessions
+      value: "5"
+    - parameter: LogLevel
+      value: "VERBOSE"
 
 - name: Allow SSH access for the specific user
   ansible.builtin.lineinfile:
