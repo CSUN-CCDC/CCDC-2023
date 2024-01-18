@@ -8,12 +8,11 @@
         Match User *
         ForceCommand sudo wall new user signed in
 
--name: make wall not require sudo password
+- name: make wall not require sudo password
   ansible.builtin.lineinfile:
   dest: /etc/sudoers
   state: present
   backup: true
   insertafter:
-    - Multiline: >
-      "{{ item }}" ALL=NOPASSWD:/bin/wall
+  line: "{{ item }} ALL=NOPASSWD:/bin/wall"
   loop: "{{ users }}"
