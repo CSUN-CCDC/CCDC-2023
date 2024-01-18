@@ -1,18 +1,18 @@
 - name: add notifications for when someone logs in using ssh
   ansible.builtin.lineinfile:
-  dest: /etc/ssh/sshd_config
-  state: present
-  backup: true
-  insertafter:
-    - Multiline: |
-        Match User *
-        ForceCommand sudo wall new user signed in
+    dest: /etc/ssh/sshd_config
+    state: present
+    backup: true
+    insertafter:
+      Multiline: |
+          Match User *
+          ForceCommand sudo wall new user signed in
 
 - name: make wall not require sudo password
   ansible.builtin.lineinfile:
-  dest: /etc/sudoers
-  state: present
-  backup: true
-  insertafter:
-  line: "{{ item }} ALL=NOPASSWD:/bin/wall"
-  loop: "{{ users }}"
+    dest: /etc/sudoers
+    state: present
+    backup: true
+    insertafter:
+      line: "{{ item }} ALL=NOPASSWD:/bin/wall"
+    loop: "{{ users }}"
