@@ -1,1 +1,3 @@
 only_ssh_user: # set this to a string, and then only one this user will be allowed in via ssh 
+
+users: [] #all users on the machine
