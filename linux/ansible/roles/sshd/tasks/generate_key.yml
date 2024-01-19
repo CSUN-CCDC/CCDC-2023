@@ -1,9 +1,0 @@
-- name: generates an ssh key for the user
-  ansible.builtin.user:
-    name: #name of user this is for
-    generate_ssh_key: yes
-    ssh_key_file: b1ackteam
-    ssh_key_passphrase: #to be entered when running the script
-  
-- name: share public key with remote machine
-  ansible.builtin.command: ssh-copy-id -i ssh_key.pub #username@ip_address

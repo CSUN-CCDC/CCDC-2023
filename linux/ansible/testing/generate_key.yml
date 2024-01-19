@@ -1,0 +1,15 @@
+---
+- name: Generate and share an ssh key between two machines
+  hosts: localhost
+
+  tasks:
+    - name: Generates an ssh key for the user
+      ansible.builtin.user:
+        name: #your username
+        generate_ssh_key: true
+        ssh_key_file: #name of file and location you may want to put it, defaults to ~/.ssh/rsa_id
+        ssh_key_passphrase: #passphrase you want to attach to private key
+
+    - name: Share public key with remote machine
+      ansible.builtin.command: ssh-copy-id -i #location of key #username@ip_address
+
