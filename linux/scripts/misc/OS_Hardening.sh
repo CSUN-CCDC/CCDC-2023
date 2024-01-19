@@ -18,6 +18,8 @@ fi
 sudo apt install git -y
 git clone https://github.com/Kirito-Kun07/unixsecur1ty.git
 # Variables
+echo -e "Ready to Continue?"
+read ready_to_continue
 
 ## Files to backup
 declare -a backup=(/etc/sysctl.conf /etc/pam.conf /etc/host.conf /etc/sysconfig /etc/ssh/sshd_config)
