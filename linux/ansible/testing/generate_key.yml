@@ -14,3 +14,4 @@
     - name: Share public key with remote machine
       ansible.builtin.command: ssh-copy-id -i #location of key #username@ip_address
 
+#remember to change the sshd_config so that ssh allows for public key authorization
