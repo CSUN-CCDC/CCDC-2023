@@ -1,0 +1,22 @@
+---
+- name: Run Script on Remote Machines
+  hosts: your_remote_group
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: Download Script
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/CSUN-CCDC/CCDC-2023/main/linux/scripts/inventory.sh
+        dest: /tmp/inventory.sh
+        mode: '0755'
+      remote_user: root  # Override SSH user for this task
+
+    - name: Run Script
+      command: /tmp/inventory.sh
+
+    - name: Download File from Remote Machine
+      ansible.builtin.fetch:
+        src: /tmp/*inventory.txt
+        dest: /.
+      remote_user: root  # Override SSH user for this task
